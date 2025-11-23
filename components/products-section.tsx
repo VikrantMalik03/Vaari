@@ -18,9 +18,10 @@ export function ProductsSection() {
 
   const fetchProducts = async () => {
     try {
-      // TS non-null assertion & correct Supabase typing
-      const { data, error } = await supabase!
-        .from<Product, Product>('products')
+      if (!supabase) return;
+
+      const { data, error } = await supabase
+        .from<Product>('products') // only one type argument
         .select('*')
         .eq('in_stock', true)
         .order('size', { ascending: true });
@@ -33,6 +34,7 @@ export function ProductsSection() {
       setLoading(false);
     }
   };
+
 
   const normalProducts = products.filter((p) => p.bottle_type === 'normal' && p.size !== '200ml');
   const premiumProducts = products.filter((p) => p.bottle_type === 'premium' && p.size !== '200ml' && p.size !== '250ml');
