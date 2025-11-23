@@ -18,9 +18,9 @@ export function ProductsSection() {
 
   const fetchProducts = async () => {
     try {
-      // TS non-null assertion
+      // TS non-null assertion & correct Supabase typing
       const { data, error } = await supabase!
-        .from<Product>('products')
+        .from<Product, Product>('products')
         .select('*')
         .eq('in_stock', true)
         .order('size', { ascending: true });
@@ -48,12 +48,11 @@ export function ProductsSection() {
     >
       <CardHeader className="pb-4 relative">
         <div className="relative w-full h-80 bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden">
-          {/* NORMAL PRODUCT IMAGES WITH HOVER SLIDE */}
           {product.bottle_type === 'normal' && (
             <div className="overflow-hidden w-full h-72">
               <div
                 className="flex h-72 transition-transform duration-700 ease-in-out group-hover:-translate-x-1/3"
-                style={{ width: '300%' }} // 3 images = 300%
+                style={{ width: '300%' }}
               >
                 <img src={product.images?.[0] || '/bottles-normal-1.png'} alt="Bottle" className="w-1/3 object-contain" />
                 <img src={product.images?.[1] || '/bottles-normal-2.png'} alt="Bottle" className="w-1/3 object-contain" />
@@ -62,7 +61,6 @@ export function ProductsSection() {
             </div>
           )}
 
-          {/* PREMIUM PRODUCT IMAGE */}
           {product.bottle_type === 'premium' && (
             <img
               src={product.image_url || '/bottles premium-1.png'}
