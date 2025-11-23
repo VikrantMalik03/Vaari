@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Package, Star, ShoppingCart, Sparkles } from 'lucide-react';
+import { Package, Star, ShoppingCart } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,13 +16,23 @@ export function ProductsSection() {
     fetchProducts();
   }, []);
 
+  // Simplified type for querying Supabase to avoid TS deep type errors
+  type ProductSelect = {
+    id: number;
+    name: string;
+    size: string;
+    bottle_type: 'normal' | 'premium';
+    description?: string;
+    images?: string[];
+    image_url?: string;
+  };
+
   const fetchProducts = async () => {
     try {
       if (!supabase) return;
 
-      // Using two type parameters to satisfy supabase-js typings
       const { data, error } = await supabase
-        .from<Product, Product>('products') // <TableType, SelectType>
+        .from<Product, ProductSelect>('products') // simplified select type
         .select('*')
         .eq('in_stock', true)
         .order('size', { ascending: true });
@@ -36,10 +46,12 @@ export function ProductsSection() {
     }
   };
 
-
-
-  const normalProducts = products.filter((p) => p.bottle_type === 'normal' && p.size !== '200ml');
-  const premiumProducts = products.filter((p) => p.bottle_type === 'premium' && p.size !== '200ml' && p.size !== '250ml');
+  const normalProducts = products.filter(
+    (p) => p.bottle_type === 'normal' && p.size !== '200ml'
+  );
+  const premiumProducts = products.filter(
+    (p) => p.bottle_type === 'premium' && p.size !== '200ml' && p.size !== '250ml'
+  );
 
   const handleOrder = () => {
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
@@ -58,9 +70,21 @@ export function ProductsSection() {
                 className="flex h-72 transition-transform duration-700 ease-in-out group-hover:-translate-x-1/3"
                 style={{ width: '300%' }}
               >
-                <img src={product.images?.[0] || '/bottles-normal-1.png'} alt="Bottle" className="w-1/3 object-contain" />
-                <img src={product.images?.[1] || '/bottles-normal-2.png'} alt="Bottle" className="w-1/3 object-contain" />
-                <img src={product.images?.[2] || '/bottles-normal-3.png'} alt="Bottle" className="w-1/3 object-contain" />
+                <img
+                  src={product.images?.[0] || '/bottles-normal-1.png'}
+                  alt="Bottle"
+                  className="w-1/3 object-contain"
+                />
+                <img
+                  src={product.images?.[1] || '/bottles-normal-2.png'}
+                  alt="Bottle"
+                  className="w-1/3 object-contain"
+                />
+                <img
+                  src={product.images?.[2] || '/bottles-normal-3.png'}
+                  alt="Bottle"
+                  className="w-1/3 object-contain"
+                />
               </div>
             </div>
           )}
