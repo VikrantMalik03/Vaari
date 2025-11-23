@@ -20,8 +20,9 @@ export function ProductsSection() {
     try {
       if (!supabase) return;
 
+      // Using two type parameters to satisfy supabase-js typings
       const { data, error } = await supabase
-        .from<Product>('products') // only one type argument
+        .from<Product, Product>('products') // <TableType, SelectType>
         .select('*')
         .eq('in_stock', true)
         .order('size', { ascending: true });
@@ -34,6 +35,7 @@ export function ProductsSection() {
       setLoading(false);
     }
   };
+
 
 
   const normalProducts = products.filter((p) => p.bottle_type === 'normal' && p.size !== '200ml');
