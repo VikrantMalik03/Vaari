@@ -6,19 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/lib/supabase';
-
-// -------------------- TYPES --------------------
-export type Product = {
-  id: number;
-  name: string;
-  description: string;
-  size: string;
-  bottle_type: 'normal' | 'premium';
-  in_stock: boolean;
-  images?: string[];     // optional for normal bottles
-  image_url?: string;    // optional for premium bottles
-};
+import { supabase, type Product } from '@/lib/supabase';
 
 export function ProductsSection() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -30,7 +18,8 @@ export function ProductsSection() {
 
   const fetchProducts = async () => {
     try {
-      const { data, error } = await supabase
+      // TS non-null assertion
+      const { data, error } = await supabase!
         .from<Product>('products')
         .select('*')
         .eq('in_stock', true)
@@ -45,12 +34,8 @@ export function ProductsSection() {
     }
   };
 
-  const normalProducts = products.filter(
-    (p) => p.bottle_type === 'normal' && p.size !== '200ml'
-  );
-  const premiumProducts = products.filter(
-    (p) => p.bottle_type === 'premium' && p.size !== '200ml' && p.size !== '250ml'
-  );
+  const normalProducts = products.filter((p) => p.bottle_type === 'normal' && p.size !== '200ml');
+  const premiumProducts = products.filter((p) => p.bottle_type === 'premium' && p.size !== '200ml' && p.size !== '250ml');
 
   const handleOrder = () => {
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
@@ -68,16 +53,11 @@ export function ProductsSection() {
             <div className="overflow-hidden w-full h-72">
               <div
                 className="flex h-72 transition-transform duration-700 ease-in-out group-hover:-translate-x-1/3"
-                style={{ width: '300%' }}
+                style={{ width: '300%' }} // 3 images = 300%
               >
-                {[0, 1, 2].map((i) => (
-                  <img
-                    key={i}
-                    src={product.images?.[i] || `/bottles-normal-${i + 1}.png`}
-                    alt={`Bottle ${i + 1}`}
-                    className="w-1/3 object-contain"
-                  />
-                ))}
+                <img src={product.images?.[0] || '/bottles-normal-1.png'} alt="Bottle" className="w-1/3 object-contain" />
+                <img src={product.images?.[1] || '/bottles-normal-2.png'} alt="Bottle" className="w-1/3 object-contain" />
+                <img src={product.images?.[2] || '/bottles-normal-3.png'} alt="Bottle" className="w-1/3 object-contain" />
               </div>
             </div>
           )}
@@ -85,20 +65,20 @@ export function ProductsSection() {
           {/* PREMIUM PRODUCT IMAGE */}
           {product.bottle_type === 'premium' && (
             <img
-              src={product.image_url || '/bottles-premium-1.png'}
+              src={product.image_url || '/bottles premium-1.png'}
               alt={product.name}
               className="h-72 w-auto object-contain transition-all duration-500 group-hover:scale-110"
               style={{ maxHeight: '100%', maxWidth: '100%' }}
             />
           )}
 
-          {/* Badges */}
           {product.bottle_type === 'premium' && (
             <Badge className="absolute top-4 right-4 bg-gradient-to-r from-yellow-500 to-orange-500 border-0 shadow-lg">
               <Star className="h-3 w-3 mr-1" />
               Premium
             </Badge>
           )}
+
           <Badge className="absolute bottom-4 left-4 bg-white/90 text-blue-600 border border-blue-200 shadow-lg">
             <Package className="h-3 w-3 mr-1" />
             {product.size}
@@ -149,9 +129,15 @@ export function ProductsSection() {
 
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-12 h-14 bg-white shadow-lg border-2 border-blue-100">
-            <TabsTrigger value="all" className="text-base">All Products</TabsTrigger>
-            <TabsTrigger value="normal" className="text-base">Normal</TabsTrigger>
-            <TabsTrigger value="premium" className="text-base">Premium</TabsTrigger>
+            <TabsTrigger value="all" className="text-base">
+              All Products
+            </TabsTrigger>
+            <TabsTrigger value="normal" className="text-base">
+              Normal
+            </TabsTrigger>
+            <TabsTrigger value="premium" className="text-base">
+              Premium
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-12">
