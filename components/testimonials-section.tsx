@@ -3,51 +3,60 @@
 import { useEffect, useState } from 'react';
 import { Star, Quote, Building2, User } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { supabase, type Testimonial } from '@/lib/supabase';
+
+type Testimonial = {
+  id: number;
+  customer_name: string;
+  company_name?: string;
+  rating: number;
+  message: string;
+  customer_type: 'business' | 'individual';
+};
 
 export function TestimonialsSection() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTestimonials();
+    // Simulated fetch (replace with real API later if needed)
+    const mockTestimonials: Testimonial[] = [
+      {
+        id: 1,
+        customer_name: 'Rahul Sharma',
+        company_name: 'Sharma Enterprises',
+        rating: 5,
+        message:
+          'VAARI provides excellent water quality and always delivers on time. Highly recommended!',
+        customer_type: 'business',
+      },
+      {
+        id: 2,
+        customer_name: 'Priya Mehta',
+        rating: 5,
+        message:
+          'The water tastes fresh and pure. Delivery service is smooth and reliable.',
+        customer_type: 'individual',
+      },
+    ];
+
+    setTimeout(() => {
+      setTestimonials(mockTestimonials);
+      setLoading(false);
+    }, 800);
   }, []);
 
-  const fetchTestimonials = async () => {
-    try {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
-      const { data, error } = await supabase
-        .from('testimonials')
-        .select('*')
-        .eq('is_approved', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setTestimonials(data || []);
-    } catch (error) {
-      console.error('Error fetching testimonials:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const renderStars = (rating: number) => {
-    return (
-      <div className="flex space-x-1">
-        {[...Array(5)].map((_, index) => (
-          <Star
-            key={index}
-            className={`h-5 w-5 ${
-              index < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
-            }`}
-          />
-        ))}
-      </div>
-    );
-  };
+  const renderStars = (rating: number) => (
+    <div className="flex space-x-1">
+      {[...Array(5)].map((_, index) => (
+        <Star
+          key={index}
+          className={`h-5 w-5 ${
+            index < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+          }`}
+        />
+      ))}
+    </div>
+  );
 
   return (
     <section id="testimonials" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
@@ -68,7 +77,7 @@ export function TestimonialsSection() {
             <p className="mt-4 text-gray-600">Loading testimonials...</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-8">
             {testimonials.map((testimonial) => (
               <Card
                 key={testimonial.id}
@@ -138,7 +147,7 @@ export function TestimonialsSection() {
           <p className="text-xl mb-8 opacity-90 max-w-3xl mx-auto">
             Experience the VAARI difference with pure, safe, and refreshing water delivered to your doorstep
           </p>
-          <div className="flex flex-wrap justify-center gap-8 text-left">
+          <div className="flex flex-wrap justify-center gap-8">
             {[
               { number: '1000+', label: 'Happy Customers' },
               { number: '50+', label: 'Business Partners' },
