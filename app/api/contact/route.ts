@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       from: 'Vaari Website <info@vaari.org>',
       to: 'Vaarisatpremsolutions@yahoo.com',
       subject: `New ${inquiry_type} Inquiry from ${name}`,
-      reply_to: email, // so you can reply directly to the customer
+      // reply_to: email, // so you can reply directly to the customer
       html: `
         <h2>New Contact Inquiry</h2>
         <p><strong>Name:</strong> ${name}</p>
