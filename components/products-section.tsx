@@ -54,13 +54,13 @@ const DropletsIcon = () => (
 );
 
 const ShieldIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
   </svg>
 );
 
 const AwardIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <circle cx="12" cy="8" r="6"></circle>
     <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
   </svg>
@@ -75,11 +75,11 @@ export function ProductsSection() {
   const products: Product[] = [
     {
       id: 1,
-      name: 'Pure Aqua 250ml',
+      name: 'Pure Aqua 200ml',
       size: '250ml',
       bottle_type: 'normal',
       description: 'Perfect for daily hydration and on-the-go refreshment',
-      image: '/normal_1.png'
+      image: '/Vaari_bottle_s_200ml_final-removebg-preview.png'
     },
     {
       id: 2,
@@ -87,7 +87,7 @@ export function ProductsSection() {
       size: '500ml',
       bottle_type: 'normal',
       description: 'Ideal for home, office, and outdoor activities',
-      image: '/normal_1.png'
+      image: '/Vaari_bottle_s_500ml_final-removebg-preview.png'
     },
     {
       id: 3,
@@ -95,15 +95,7 @@ export function ProductsSection() {
       size: '1L',
       bottle_type: 'normal',
       description: 'Family size for shared meals and gatherings',
-      image: '/normal_1.png'
-    },
-    {
-      id: 4,
-      name: 'Premium Crystal 500ml',
-      size: '500ml',
-      bottle_type: 'premium',
-      description: 'Enhanced mineral water with superior taste and purity',
-      image: '/bottles premium-1 (1).png'
+      image: '/Vaari_bottle_s_1ltr_2_final-removebg-preview.png'
     },
     {
       id: 5,
@@ -111,12 +103,26 @@ export function ProductsSection() {
       size: '1L',
       bottle_type: 'premium',
       description: 'Luxury hydration experience for discerning customers',
-      image: '/bottles premium-1 (1).png'
+      image: '/Vaari_bottle_p_1ltr_final-removebg-preview.png'
     }
   ];
 
-  const normalProducts = products.filter(p => p.bottle_type === 'normal');
-  const premiumProducts = products.filter(p => p.bottle_type === 'premium');
+  const orderedProducts = {
+    all: [
+      products.find(p => p.name.includes('200ml')),
+      products.find(p => p.name.includes('500ml')),
+      products.find(p => p.name.includes('1L') && p.bottle_type === 'normal'),
+      products.find(p => p.name.includes('1L') && p.bottle_type === 'premium'),
+    ].filter(Boolean) as Product[],
+    normal: [
+      products.find(p => p.name.includes('200ml')),
+      products.find(p => p.name.includes('500ml')),
+      products.find(p => p.name.includes('1L') && p.bottle_type === 'normal'),
+    ].filter(Boolean) as Product[],
+    premium: [products.find(p => p.bottle_type === 'premium')].filter(Boolean) as Product[],
+  };
+
+  const filteredProducts = orderedProducts[activeTab];
 
   const handleOrder = () => {
     const contactSection = document.getElementById('contact');
@@ -125,62 +131,53 @@ export function ProductsSection() {
     }
   };
 
-  // -----------------------
-  // Product Card Component
-  // -----------------------
   const ProductCard = ({ product, index }: ProductCardProps) => (
     <div
-      className="group relative bg-white rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
-      style={{
-        animation: 'fadeInUp 0.6s ease-out forwards',
-        animationDelay: `${index * 0.1}s`,
-        opacity: 0
-      }}
+      className="group relative bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.25)] hover:-translate-y-3 flex flex-col"
+      style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: `${index * 0.1}s`, opacity: 0 }}
     >
       {product.bottle_type === 'premium' && (
-        <div className="absolute top-4 right-4 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg font-semibold text-sm">
-          <StarIcon filled={true} />
+        <div className="absolute top-4 right-4 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg font-semibold text-sm animate-pulse">
+          <StarIcon filled />
           Premium
         </div>
       )}
 
-      <div className="relative h-80 bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center overflow-hidden">
+      {/* IMAGE SECTION */}
+      <div className="relative h-[340px] flex items-end justify-center overflow-hidden bg-gradient-to-br from-blue-100/70 via-white to-cyan-100/70 pt-10">
+        <div className="absolute w-64 h-64 bg-cyan-300/30 rounded-full blur-3xl group-hover:scale-125 transition-all duration-700"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-tr from-white/40 via-transparent to-transparent opacity-60 pointer-events-none"></div>
+
         <img
           src={product.image}
           alt={product.name}
-          className="h-72 w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-2xl"
+          className="relative z-10 max-h-[260px] w-auto object-contain transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-3 drop-shadow-[0_30px_35px_rgba(0,0,0,0.28)]"
         />
 
-        <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm text-blue-600 px-4 py-2 rounded-full flex items-center gap-2 shadow-lg font-semibold border border-blue-100">
+        <div className="absolute bottom-8 w-32 h-6 bg-black/20 blur-xl rounded-full"></div>
+
+        <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md text-blue-600 px-4 py-2 rounded-full flex items-center gap-2 shadow-md font-semibold border border-blue-100">
           <PackageIcon />
           {product.size}
         </div>
       </div>
 
-      <div className="p-6 space-y-4">
+      {/* CONTENT */}
+      <div className="p-6 flex flex-col flex-grow justify-between space-y-4">
         <div className="text-center space-y-2">
           <h3 className="text-2xl font-bold text-gray-900">{product.name}</h3>
           <p className="text-gray-600 text-sm">{product.description}</p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-2">
-          <div className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-3 py-2 rounded-full font-medium">
-            <ShieldIcon />
-            RO Purified
-          </div>
-          <div className="flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-3 py-2 rounded-full font-medium">
-            <AwardIcon />
-            Copper Enriched
-          </div>
-          <div className="flex items-center gap-1 text-xs bg-cyan-50 text-cyan-700 px-3 py-2 rounded-full font-medium">
-            <DropletsIcon />
-            100% Pure
-          </div>
+          <div className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-3 py-2 rounded-full font-medium"><ShieldIcon />RO Purified</div>
+          <div className="flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-3 py-2 rounded-full font-medium"><AwardIcon />Copper Enriched</div>
+          <div className="flex items-center gap-1 text-xs bg-cyan-50 text-cyan-700 px-3 py-2 rounded-full font-medium"><DropletsIcon />100% Pure</div>
         </div>
 
         <button
           onClick={handleOrder}
-          className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 rounded-2xl font-semibold text-lg flex items-center justify-center gap-3 hover:shadow-xl hover:scale-105 transition-all duration-300"
+          className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 rounded-2xl font-semibold text-lg flex items-center justify-center gap-3 hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
         >
           <ShoppingCartIcon />
           Order Now
@@ -189,23 +186,14 @@ export function ProductsSection() {
     </div>
   );
 
-  const filteredProducts =
-    activeTab === 'all'
-      ? products
-      : activeTab === 'normal'
-      ? normalProducts
-      : premiumProducts;
-
   return (
     <section id="products" className="py-20 bg-gradient-to-b from-white via-blue-50/30 to-white relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-cyan-200/30 blur-[120px] rounded-full pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent">
-            Our Products
-          </h2>
-          <p className="text-xl text-gray-600 mt-4">
-            Choose from our range of premium bottled water
-          </p>
+          <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent">Our Products</h2>
+          <p className="text-xl text-gray-600 mt-4">Choose from our range of premium bottled water</p>
         </div>
 
         <div className="flex justify-center mb-12">
@@ -226,13 +214,7 @@ export function ProductsSection() {
           </div>
         </div>
 
-        <div
-          className={`grid ${
-            activeTab === 'premium'
-              ? 'sm:grid-cols-2 max-w-4xl mx-auto'
-              : 'sm:grid-cols-2 lg:grid-cols-3'
-          } gap-8`}
-        >
+        <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-10 max-w-5xl mx-auto">
           {filteredProducts.map((product, index) => (
             <ProductCard key={product.id} product={product} index={index} />
           ))}
@@ -241,14 +223,8 @@ export function ProductsSection() {
 
       <style jsx>{`
         @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </section>

@@ -52,7 +52,7 @@ export function DeliverySection() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Delivery Schedule</h3>
               <p className="text-gray-700 text-lg">Daily & Weekly Options</p>
-              <p className="text-gray-600 mt-2">Same-day delivery available for bulk orders</p>
+              <p className="text-gray-600 mt-2">With-in 48hrs delivery available for bulk orders</p>
             </CardContent>
           </Card>
         </div>
@@ -73,14 +73,14 @@ export function DeliverySection() {
                   href="tel:+919268448510"
                   className="text-blue-600 font-semibold hover:underline text-lg"
                 >
-                  9268448510
+                  9268448510 (Call)
                 </a>
                 <p className="text-gray-600 text-sm mt-1">or</p>
                 <a
                   href="tel:+918929695631"
                   className="text-blue-600 font-semibold hover:underline text-lg"
                 >
-                  8929695631
+                  8929695631 (Whatsapp)
                 </a>
               </div>
             </div>
@@ -190,7 +190,7 @@ export function DeliverySection() {
           </h3>
           <div className="grid md:grid-cols-4 gap-6">
             {[
-              { title: 'Fast Delivery', desc: 'Same-day delivery available' },
+              { title: 'Fast Delivery', desc: 'With-in 48hrs delivery available' },
               { title: 'Quality Assured', desc: 'Temperature-controlled transport' },
               { title: 'Reliable Service', desc: 'On-time, every time' },
               { title: 'Flexible Options', desc: 'Daily, weekly, or monthly' },

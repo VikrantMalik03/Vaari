@@ -45,17 +45,17 @@ export function Navigation() {
             
             {/* LOGO SECTION */}
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-2 rounded-lg">
+              <div className="p-2 rounded-lg">
                 <img
-                  src="/logo_vaari.png"
+                  src="/VAARI LOGO_page-0001.jpg"
                   alt="logo"
                   className="h-12 w-auto object-contain"
                 />
               </div>
-              <div>
+              {/* <div>
                 <h1 className="text-2xl font-bold text-gray-900">VAARI</h1>
                 <p className="text-xs text-gray-600">by SATPREM SOLUTIONS</p>
-              </div>
+              </div> */}
             </div>
 
             {/* DESKTOP MENU */}
