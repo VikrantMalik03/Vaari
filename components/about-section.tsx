@@ -1,5 +1,5 @@
 'use client';
-
+/* eslint-disable react/no-unescaped-entities */
 import { Calendar, Target, Droplets, Award, Building2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
