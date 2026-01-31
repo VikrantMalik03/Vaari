@@ -96,7 +96,7 @@ export function AboutSection() {
               <div className="bg-cyan-50 rounded-xl p-6">
                 <h5 className="font-bold text-gray-900 mb-3 text-lg">Copper Enrichment</h5>
                 <p className="text-gray-700">
-                  Water enriched with copper's natural health-boosting properties, including
+                  Water enriched with copper&rsquo;s natural health-boosting properties, including
                   antimicrobial benefits and improved immunity.
                 </p>
               </div>
