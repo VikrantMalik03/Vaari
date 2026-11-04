@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Phone, Menu, X, MessageCircle, Palette } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-motion';
+import { Mail, Menu, MessageCircle, Palette, Phone, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -10,156 +10,194 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { scrollToTarget, setScrollLocked } from '@/components/site/motion';
+import { CONTACT, NAV_LINKS } from '@/lib/site-data';
+
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function Navigation() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [activeId, setActiveId] = useState('');
+  const { scrollY } = useScroll();
 
-  const navLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'About', href: '#about' },
-    { name: 'Products', href: '#products' },
-    { name: 'Delivery', href: '#delivery' },
-    { name: 'Testimonials', href: '#testimonials' },
-    { name: 'Contact', href: '#contact' },
-  ];
+  useMotionValueEvent(scrollY, 'change', (y) => setScrolled(y > 40));
 
-  const handleCall = () => {
-    window.location.href = 'tel:+919268448510';
-  };
+  useEffect(() => {
+    setScrollLocked(menuOpen);
+    return () => setScrollLocked(false);
+  }, [menuOpen]);
 
-  const handleWhatsApp = () => {
-    window.open('https://wa.me/918929695631', '_blank');
-  };
+  // Highlights the link for whichever section crosses the middle of the screen.
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const hit = entries.find((entry) => entry.isIntersecting);
+        if (hit) setActiveId(hit.target.id);
+      },
+      { rootMargin: '-50% 0px -50% 0px' },
+    );
+    ['home', ...NAV_LINKS.map((l) => l.href.slice(1))].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
 
-  const handleCustomize = () => {
-    window.location.href = '#contact';
-    setContactDialogOpen(false);
-  };
+  const solid = scrolled && !menuOpen;
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            
-            {/* LOGO SECTION */}
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg">
-                <img
-                  src="/VAARI LOGO_page-0001.jpg"
-                  alt="logo"
-                  className="h-12 w-auto object-contain"
-                />
-              </div>
-              {/* <div>
-                <h1 className="text-2xl font-bold text-gray-900">VAARI</h1>
-                <p className="text-xs text-gray-600">by SATPREM SOLUTIONS</p>
-              </div> */}
-            </div>
+      <motion.header
+        initial={{ y: -90, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 1, ease: EASE, delay: 1.2 }}
+        className="fixed inset-x-0 top-0 z-50 px-3 sm:px-5"
+      >
+        <nav
+          aria-label="Main"
+          className={`mx-auto flex items-center justify-between transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            solid
+              ? 'mt-3 h-16 max-w-6xl rounded-full border border-white/60 bg-white/75 px-4 shadow-[0_14px_44px_-14px_rgba(7,38,58,0.4)] backdrop-blur-xl sm:px-6'
+              : 'mt-1 h-20 max-w-7xl rounded-none border border-transparent bg-transparent px-2 sm:px-3'
+          }`}
+        >
+          <a href="#home" aria-label="VAARI home" className="relative block h-10 w-[86px] shrink-0">
+            <img
+              src="/brand/vaari-logo-light.webp"
+              alt=""
+              className={`absolute inset-0 h-full w-full object-contain object-left transition-opacity duration-500 ${solid ? 'opacity-0' : 'opacity-100'}`}
+            />
+            <img
+              src="/brand/vaari-logo.webp"
+              alt=""
+              className={`absolute inset-0 h-full w-full object-contain object-left transition-opacity duration-500 ${solid ? 'opacity-100' : 'opacity-0'}`}
+            />
+          </a>
 
-            {/* DESKTOP MENU */}
-            <div className="hidden md:flex items-center space-x-8">
-              {navLinks.map((link) => (
+          <div className="hidden items-center gap-1 lg:flex">
+            {NAV_LINKS.map((link) => {
+              const isActive = activeId === link.href.slice(1);
+              return (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
+                  aria-current={isActive ? 'true' : undefined}
+                  className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
+                    solid ? 'text-ink/75 hover:text-ink' : 'text-white/85 hover:text-white'
+                  }`}
                 >
+                  {isActive && solid && (
+                    <motion.span
+                      layoutId="nav-active"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                      className="absolute inset-0 -z-10 rounded-full bg-ocean/10"
+                    />
+                  )}
                   {link.name}
                 </a>
-              ))}
-              <Button
-                onClick={() => setContactDialogOpen(true)}
-                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
-              >
-                <Phone className="h-4 w-4 mr-2" />
-                Get in Touch
-              </Button>
-            </div>
+              );
+            })}
+          </div>
 
-            {/* MOBILE MENU BUTTON */}
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              onClick={() => setDialogOpen(true)}
+              className={`btn-fill hidden !px-5 !py-2.5 hover:text-white sm:inline-flex ${
+                solid ? 'bg-ink text-white' : 'bg-white text-ink'
+              }`}
             >
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              <Phone className="h-3.5 w-3.5" />
+              Get in Touch
+            </button>
+            <button
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              className={`grid h-11 w-11 place-items-center rounded-full transition-colors lg:hidden ${
+                solid ? 'text-ink hover:bg-ink/5' : 'text-white hover:bg-white/10'
+              }`}
+            >
+              {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
-        </div>
+        </nav>
+      </motion.header>
 
-        {/* MOBILE MENU */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t">
-            <div className="px-4 py-4 space-y-3">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                >
-                  {link.name}
-                </a>
-              ))}
-              <Button
-                onClick={() => {
-                  setContactDialogOpen(true);
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600"
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ clipPath: 'circle(0% at 92% 5%)' }}
+            animate={{ clipPath: 'circle(150% at 92% 5%)' }}
+            exit={{ clipPath: 'circle(0% at 92% 5%)' }}
+            transition={{ duration: 0.7, ease: [0.76, 0, 0.24, 1] }}
+            className="hero-water fixed inset-0 z-40 flex flex-col justify-center px-8 text-white lg:hidden"
+          >
+            {NAV_LINKS.map((link, i) => (
+              <motion.a
+                key={link.name}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                initial={{ opacity: 0, y: 28 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: EASE, delay: 0.2 + i * 0.06 }}
+                className="border-b border-white/10 py-3.5 font-display text-4xl font-light"
               >
-                <Phone className="h-4 w-4 mr-2" />
-                Get in Touch
-              </Button>
-            </div>
-          </div>
+                {link.name}
+              </motion.a>
+            ))}
+            <motion.button
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: EASE, delay: 0.6 }}
+              onClick={() => {
+                setMenuOpen(false);
+                setDialogOpen(true);
+              }}
+              className="btn-fill mt-8 bg-white text-ink hover:text-white"
+            >
+              <Phone className="h-4 w-4" />
+              Get in Touch
+            </motion.button>
+          </motion.div>
         )}
-      </nav>
+      </AnimatePresence>
 
-      {/* CONTACT DIALOG */}
-      <Dialog open={contactDialogOpen} onOpenChange={setContactDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="rounded-3xl sm:max-w-md sm:rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Contact VAARI</DialogTitle>
-            <DialogDescription>
-              Choose how you would like to connect with us
-            </DialogDescription>
+            <DialogTitle className="text-3xl font-light">Contact VAARI</DialogTitle>
+            <DialogDescription>Choose how you would like to connect with us</DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
-            <Button
-              onClick={handleCall}
-              className="h-16 bg-green-600 hover:bg-green-700 text-lg"
+          <div className="grid gap-3 py-3">
+            <a href={CONTACT.phoneHref} className="group flex items-center gap-4 rounded-2xl bg-foam p-4 transition-colors hover:bg-ocean hover:text-white">
+              <Phone className="h-5 w-5 text-ocean group-hover:text-white" />
+              <span className="font-bold">Call Us: {CONTACT.phone}</span>
+            </a>
+            <a href={CONTACT.whatsappHref} target="_blank" rel="noreferrer" className="group flex items-center gap-4 rounded-2xl bg-foam p-4 transition-colors hover:bg-[#128c5e] hover:text-white">
+              <MessageCircle className="h-5 w-5 text-[#128c5e] group-hover:text-white" />
+              <span className="font-bold">WhatsApp: {CONTACT.whatsapp}</span>
+            </a>
+            <button
+              onClick={() => {
+                setDialogOpen(false);
+                scrollToTarget('#white-label');
+              }}
+              className="group flex items-center gap-4 rounded-2xl bg-foam p-4 text-left transition-colors hover:bg-copper hover:text-white"
             >
-              <Phone className="h-5 w-5 mr-3" />
-              Call Us: 9268448510
-            </Button>
-
-            <Button
-              onClick={handleWhatsApp}
-              className="h-16 bg-emerald-600 hover:bg-emerald-700 text-lg"
-            >
-              <MessageCircle className="h-5 w-5 mr-3" />
-              WhatsApp: 8929695631
-            </Button>
-
-            <Button
-              onClick={handleCustomize}
-              className="h-16 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg"
-            >
-              <Palette className="h-5 w-5 mr-3" />
-              White Label / Customize
-            </Button>
+              <Palette className="h-5 w-5 text-copper-dark group-hover:text-white" />
+              <span className="font-bold">White Label / Customize</span>
+            </button>
           </div>
 
-          <div className="text-center text-sm text-gray-600 space-y-1">
-            <p>Email: Vaarisatpremsolutions@yahoo.com</p>
-            <p>Working Hours: 9:00 AM - 6:00 PM</p>
+          <div className="space-y-1 text-center text-sm text-ink/65">
+            <p className="flex items-center justify-center gap-2 break-all">
+              <Mail className="h-3.5 w-3.5 shrink-0" />
+              {CONTACT.email}
+            </p>
+            <p>Working Hours: {CONTACT.hours}</p>
           </div>
         </DialogContent>
       </Dialog>

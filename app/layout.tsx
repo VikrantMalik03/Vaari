@@ -1,8 +1,15 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Fraunces, Manrope } from 'next/font/google';
 
-const inter = Inter({ subsets: ['latin'] });
+const sans = Manrope({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const display = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-display',
+  style: ['normal', 'italic'],
+  axes: ['SOFT', 'opsz'],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'VAARI - Premium Bottled Water | Stay Pure. Stay Hydrated.',
@@ -15,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className={`${sans.variable} ${display.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

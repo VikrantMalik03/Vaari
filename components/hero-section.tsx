@@ -1,240 +1,298 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Droplets, Award, Shield, Leaf } from 'lucide-react';
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useScroll,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from 'framer-motion';
+import { ArrowDownRight, ArrowRight, Award, Droplets, Leaf, ShieldCheck } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { Bubbles, Reveal, RiseText, WaveEdge } from '@/components/site/motion';
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+const INTRO_DELAY = 1.05; // waits for the preloader to lift
+
+const FEATURES = [
+  { icon: Droplets, title: 'Pure Water', text: 'Multi-stage RO purification' },
+  { icon: Award, title: 'FSSAI Certified', text: 'Food safety compliant' },
+  { icon: ShieldCheck, title: 'Quality Assured', text: 'Consistent in every bottle' },
+  { icon: Leaf, title: 'Eco-Friendly', text: 'Considered packaging' },
+];
+
+/** A scroll timeline with separate end points for desktop and mobile layouts. */
+function useTimeline(
+  progress: MotionValue<number>,
+  isDesktop: MotionValue<number>,
+  input: number[],
+  desktop: number[],
+  mobile: number[],
+  unit = '',
+) {
+  const onDesktop = useTransform(progress, input, desktop);
+  const onMobile = useTransform(progress, input, mobile);
+  return useTransform([onDesktop, onMobile, isDesktop], ([d, m, flag]) => {
+    const value = (flag as number) ? (d as number) : (m as number);
+    return unit ? `${value}${unit}` : value;
+  });
+}
 
 export function HeroSection() {
-  return (
-    <section id="home" className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-cyan-50 to-white -z-10" />
+  const stage = useRef<HTMLElement>(null);
+  const { scrollYProgress: p } = useScroll({ target: stage, offset: ['start start', 'end end'] });
 
-      <div className="absolute inset-0 opacity-5 -z-10">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" 
-             style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" 
-             style={{ animationDelay: '2s' }} />
+  // Read inside scroll transforms, which only see the values from their first render.
+  const isDesktop = useMotionValue(1);
+  useEffect(() => {
+    const query = window.matchMedia('(min-width: 1024px)');
+    const update = () => isDesktop.set(query.matches ? 1 : 0);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, [isDesktop]);
+
+  // Pointer parallax on the bottles.
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const smoothX = useSpring(mx, { stiffness: 60, damping: 18 });
+  const smoothY = useSpring(my, { stiffness: 60, damping: 18 });
+  const parallaxX = useTransform(smoothX, [-1, 1], [-16, 16]);
+  const parallaxY = useTransform(smoothY, [-1, 1], [-10, 10]);
+  const sideParallaxX = useTransform(smoothX, [-1, 1], [26, -26]);
+  const tilt = useTransform(smoothX, [-1, 1], [-2.5, 2.5]);
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    mx.set((e.clientX / window.innerWidth) * 2 - 1);
+    my.set((e.clientY / window.innerHeight) * 2 - 1);
+  };
+
+  // Scroll timeline: 0 to 0.58 is pinned, then the page rises over the hero and the bottle lands on it.
+  const copyOpacity = useTransform(p, [0, 0.16], [1, 0]);
+  const copyY = useTransform(p, [0, 0.22], ['0vh', '-9vh']);
+  const titleScale = useTransform(p, [0, 0.22], [1, 1.08]);
+  const callouts = useTransform(p, [0.24, 0.32, 0.5, 0.58], [0, 1, 1, 0]);
+  const calloutShift = useTransform(p, [0.24, 0.34], [28, 0]);
+
+  const bottleY = useTimeline(p, isDesktop, [0, 0.3, 0.58, 1], [0, -16, -16, -17], [0, -16, -16, -30], 'vh');
+  const bottleX = useTimeline(p, isDesktop, [0, 0.58, 1], [0, 0, 24], [0, 0, 0], 'vw');
+  const bottleScale = useTimeline(p, isDesktop, [0, 0.3, 0.58, 1], [1, 1.2, 1.2, 1.08], [1, 1.2, 1.2, 0.9]);
+  const bottleRotate = useTransform(p, [0, 0.3, 0.58, 0.82, 1], [0, -5, 4, 9, 0]);
+  const bottleOpacity = useTimeline(p, isDesktop, [0.64, 0.8], [1, 1], [1, 0]);
+  const shadowOpacity = useTimeline(p, isDesktop, [0, 0.16, 0.86, 1], [0.5, 0, 0, 0.28], [0.5, 0, 0, 0]);
+
+  const sideOpacity = useTransform(p, [0, 0.2], [1, 0]);
+  const leftX = useTransform(p, [0, 0.24], ['0vw', '-22vw']);
+  const rightX = useTransform(p, [0, 0.24], ['0vw', '22vw']);
+  const leftRotate = useTransform(p, [0, 0.24], [-9, -30]);
+  const rightRotate = useTransform(p, [0, 0.24], [9, 30]);
+  const sideY = useTransform(p, [0, 0.24], ['0vh', '10vh']);
+
+  const leftTransformX = useMotionTemplate`calc(${leftX} + ${sideParallaxX}px)`;
+  const rightTransformX = useMotionTemplate`calc(${rightX} + ${sideParallaxX}px)`;
+
+  return (
+    <div className="relative" onPointerMove={onPointerMove}>
+      {/* Bottle layer. It stays pinned across the hero and the section it lands on. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 z-20">
+        <div className="screen-h sticky top-0 overflow-hidden">
+          <div className="absolute inset-x-0 bottom-[11vh] flex h-[47vh] justify-center lg:bottom-[2vh] lg:h-[58vh]">
+            <motion.div
+              initial={{ opacity: 0, y: 90 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.3, ease: EASE, delay: INTRO_DELAY + 0.25 }}
+              className="absolute bottom-0 left-1/2 ml-[-29vw] h-[66%] lg:ml-[-19vw] lg:h-[74%]"
+            >
+              <motion.img
+                src="/bottles/vaari-classic-1l.webp"
+                alt=""
+                style={{ x: leftTransformX, y: sideY, rotate: leftRotate, opacity: sideOpacity }}
+                className="h-full w-auto -translate-x-1/2 drop-shadow-[0_24px_30px_rgba(0,12,24,0.45)]"
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 90 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.3, ease: EASE, delay: INTRO_DELAY + 0.32 }}
+              className="absolute bottom-0 left-1/2 ml-[29vw] h-[60%] lg:ml-[19vw] lg:h-[68%]"
+            >
+              <motion.img
+                src="/bottles/vaari-classic-500ml.webp"
+                alt=""
+                style={{ x: rightTransformX, y: sideY, rotate: rightRotate, opacity: sideOpacity }}
+                className="h-full w-auto -translate-x-1/2 drop-shadow-[0_24px_30px_rgba(0,12,24,0.45)]"
+              />
+            </motion.div>
+
+            <motion.div
+              style={{ x: bottleX, y: bottleY, scale: bottleScale, rotate: bottleRotate, opacity: bottleOpacity }}
+              className="relative h-full origin-center"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 120, scale: 0.92 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 1.4, ease: EASE, delay: INTRO_DELAY }}
+                className="h-full"
+              >
+                <motion.div style={{ x: parallaxX, y: parallaxY, rotate: tilt }} className="h-full">
+                  <img
+                    src="/bottles/vaari-premium-1l.webp"
+                    alt=""
+                    className="h-full w-auto animate-bob drop-shadow-[0_34px_24px_rgba(0,12,24,0.3)]"
+                  />
+                </motion.div>
+              </motion.div>
+              <motion.div
+                style={{ opacity: shadowOpacity }}
+                className="absolute -bottom-3 left-1/2 h-5 w-[90%] -translate-x-1/2 rounded-[50%] bg-ink blur-xl"
+              />
+            </motion.div>
+          </div>
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8 animate-fadeInUp">
-            <div className="inline-block animate-slideInLeft">
-              <span className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg hover:shadow-xl transition-shadow duration-300">
-                Premium Bottled Water Since 2025
-              </span>
-            </div>
+      {/* Pinned hero */}
+      <section id="home" ref={stage} className="relative h-[340vh]">
+        <div className="hero-water noise screen-h sticky top-0 overflow-hidden text-white">
+          <Bubbles className="absolute inset-0 h-full w-full" />
 
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight animate-slideInLeft" 
-                style={{ animationDelay: '0.2s' }}>
-              Stay Pure.
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600 animate-gradient">
-                Stay Hydrated.
-              </span>
+          <motion.div
+            style={{ opacity: copyOpacity, y: copyY, scale: titleScale }}
+            className="absolute inset-x-0 top-[11vh] z-10 px-4 text-center"
+          >
+            <motion.p
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: INTRO_DELAY }}
+              className="mb-3 text-[11px] font-bold uppercase tracking-[0.28em] text-aqua sm:text-xs"
+            >
+              Premium Bottled Water Since 2025
+            </motion.p>
+            <h1 className="font-display font-light leading-[0.98] [font-size:clamp(3rem,min(8vw,11.6vh),8rem)]">
+              <RiseText as="span" immediate delay={INTRO_DELAY + 0.05} text="Stay Pure." className="block" />
+              <RiseText
+                as="span"
+                immediate
+                delay={INTRO_DELAY + 0.2}
+                text="Stay Hydrated."
+                className="block italic text-copper-light"
+              />
             </h1>
+          </motion.div>
 
-            <p className="text-xl text-gray-600 leading-relaxed animate-slideInLeft" 
-               style={{ animationDelay: '0.4s' }}>
-              Experience the purity of copper-based RO purified water. Every drop of VAARI
-              water is a commitment to your health, combining advanced filtration with the
-              natural benefits of copper enrichment.
+          <motion.div
+            style={{ opacity: copyOpacity }}
+            className="absolute bottom-[7vh] left-[5vw] z-30 hidden w-[21vw] min-w-[250px] lg:block"
+          >
+            <motion.p
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: INTRO_DELAY + 0.55 }}
+              className="text-[15px] leading-relaxed text-white/80"
+            >
+              Experience the purity of copper-based RO purified water. Every drop is a commitment to
+              your health.
+            </motion.p>
+          </motion.div>
+
+          <motion.div
+            style={{ opacity: copyOpacity }}
+            className="absolute inset-x-0 bottom-5 z-30 flex gap-2 pl-4 pr-[80px] lg:inset-x-auto lg:gap-3 lg:pl-0 lg:pr-0 lg:bottom-[7vh] lg:right-[5vw] lg:flex-col lg:items-end"
+          >
+            <motion.a
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: INTRO_DELAY + 0.65 }}
+              href="#products"
+              className="btn-fill whitespace-nowrap bg-white text-ink hover:text-white max-lg:!px-4 max-lg:!py-3.5"
+            >
+              View Products <ArrowDownRight className="h-4 w-4" />
+            </motion.a>
+            <motion.a
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: INTRO_DELAY + 0.75 }}
+              href="#contact"
+              className="btn-fill whitespace-nowrap border border-white/40 text-white [--btn-hover:rgba(255,255,255,0.16)] max-lg:!px-4 max-lg:!py-3.5"
+            >
+              Contact Us <ArrowRight className="h-4 w-4" />
+            </motion.a>
+          </motion.div>
+
+          {/* Callouts either side of the bottle, while it is pinned at centre. */}
+          <motion.div
+            style={{ opacity: callouts, x: useTransform(calloutShift, (v) => -v) }}
+            className="absolute left-[7vw] top-[34vh] z-10 hidden max-w-[24vw] lg:block"
+          >
+            <p className="font-display text-4xl font-light italic text-aqua xl:text-5xl">RO Purified</p>
+            <div className="my-4 h-px w-[85%] bg-gradient-to-r from-aqua/70 to-transparent" />
+            <p className="text-[15px] leading-relaxed text-white/75">
+              Advanced reverse osmosis leaves crystal-clear water, free from contaminants and impurities.
             </p>
+          </motion.div>
+          <motion.div
+            style={{ opacity: callouts, x: calloutShift }}
+            className="absolute right-[7vw] top-[50vh] z-10 hidden max-w-[24vw] text-right lg:block"
+          >
+            <p className="font-display text-4xl font-light italic text-copper-light xl:text-5xl">Copper Enriched</p>
+            <div className="my-4 ml-auto h-px w-[85%] bg-gradient-to-l from-copper-light/80 to-transparent" />
+            <p className="text-[15px] leading-relaxed text-white/75">
+              With the goodness of copper, for water that does more than quench your thirst.
+            </p>
+          </motion.div>
+          <motion.p
+            style={{ opacity: callouts }}
+            className="absolute inset-x-6 top-[11vh] z-10 text-center font-display text-2xl font-light italic text-white lg:hidden"
+          >
+            RO purified. <span className="text-copper-light">Copper enriched.</span>
+          </motion.p>
+        </div>
+      </section>
 
-            <div className="flex flex-wrap gap-4 animate-slideInLeft" style={{ animationDelay: '0.6s' }}>
-              <Button
-                size="lg"
-                className="h-14 px-8 text-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl"
-                onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                View Products
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-14 px-8 text-lg border-2 border-blue-600 text-blue-600 hover:bg-blue-50 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl"
-                onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Contact Us
-              </Button>
-            </div>
+      {/* The section the bottle lands on rises over the hero like a tide. */}
+      <section className="relative z-10 -mt-[100vh] bg-paper">
+        <WaveEdge color="#f7fbfc" className="absolute inset-x-0 bottom-[calc(100%-1px)]" />
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 lg:min-h-screen lg:grid-cols-2 lg:items-center lg:py-28">
+          <div>
+            <Reveal>
+              <p className="eyebrow mb-6 text-copper-dark">With the goodness of copper</p>
+            </Reveal>
+            <RiseText
+              text="Water you can trust, in every single drop."
+              className="max-w-xl text-4xl font-light leading-[1.08] text-ink sm:text-5xl xl:text-6xl"
+            />
+            <Reveal delay={0.15}>
+              <p className="mt-7 max-w-lg text-lg leading-relaxed text-ink/70">
+                Our water is sourced from a state-of-the-art Copper-Based RO Purifier, combining
+                advanced Reverse Osmosis filtration technology with the natural benefits of copper.
+              </p>
+            </Reveal>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
-              {[
-                { icon: Droplets, label: 'Pure Water', delay: '0.8s' },
-                { icon: Award, label: 'FSSAI Certified', delay: '0.9s' },
-                { icon: Shield, label: 'Quality Assured', delay: '1s' },
-                { icon: Leaf, label: 'Eco-Friendly', delay: '1.1s' },
-              ].map((item, index) => (
-                <div key={index} className="text-center animate-fadeInUp" style={{ animationDelay: item.delay }}>
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl mb-2 transform hover:scale-110 hover:rotate-6 transition-all duration-300 shadow-md hover:shadow-lg">
-                    <item.icon className="h-6 w-6 text-blue-600" />
+            <img
+              src="/bottles/vaari-premium-1l.webp"
+              alt="VAARI Premium Crystal 1 litre bottle with a copper label"
+              loading="lazy"
+              className="mx-auto mt-10 h-[56vh] w-auto drop-shadow-[0_26px_26px_rgba(7,38,58,0.25)] lg:hidden"
+            />
+
+            <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4">
+              {FEATURES.map((feature, i) => (
+                <Reveal key={feature.title} delay={0.08 * i} y={24}>
+                  <div className="group h-full rounded-2xl border border-ink/10 bg-white p-5 transition-all duration-500 hover:-translate-y-1 hover:border-ocean/30 hover:shadow-[0_18px_40px_-20px_rgba(10,51,80,0.45)]">
+                    <feature.icon className="mb-4 h-6 w-6 text-ocean transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:scale-110" />
+                    <h3 className="font-sans text-[15px] font-bold tracking-normal text-ink">{feature.title}</h3>
+                    <p className="mt-1 text-[13px] leading-snug text-ink/60">{feature.text}</p>
                   </div>
-                  <p className="text-sm font-medium text-gray-700">{item.label}</p>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>
-
-          <div className="relative animate-fadeInRight">
-            <div className="relative w-full h-[600px] flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-3xl transform rotate-6 opacity-20 animate-float" />
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-300 to-cyan-300 rounded-3xl transform -rotate-6 opacity-20 animate-float" 
-                   style={{ animationDelay: '1s' }} />
-
-              <div className="relative z-10 grid grid-cols-2 gap-6">
-                <div className="space-y-6 animate-slideInUp" style={{ animationDelay: '0.4s' }}>
-                  <div className="bg-white p-4 rounded-2xl shadow-xl transform hover:scale-105 hover:-rotate-2 transition-all duration-500 hover:shadow-2xl group">
-                    <div className="w-full h-56 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl flex items-center justify-center overflow-hidden relative">
-                      <div className="absolute inset-0 bg-gradient-to-t from-blue-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <img 
-                        src="/Vaari_bottle_p_1ltr_final-removebg-preview.png" 
-                        alt="premium" 
-                        className="h-52 w-auto object-contain transform group-hover:scale-110 transition-transform duration-500"
-                      />
-                    </div>
-                    <p className="text-center font-semibold text-gray-800 mt-4 group-hover:text-blue-600 transition-colors duration-300">Premium Design</p>
-                  </div>
-                </div>
-                <div className="space-y-6 pt-12 animate-slideInUp" style={{ animationDelay: '0.6s' }}>
-                  <div className="bg-white p-4 rounded-2xl shadow-xl transform hover:scale-105 hover:rotate-2 transition-all duration-500 hover:shadow-2xl group">
-                    <div className="w-full h-56 bg-gradient-to-br from-cyan-400 to-cyan-500 rounded-xl flex items-center justify-center overflow-hidden relative">
-                      <div className="absolute inset-0 bg-gradient-to-t from-cyan-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <img 
-                        src="/Vaari_bottle_s_1ltr_2_final-removebg-preview.png" 
-                        alt="normal" 
-                        className="h-52 w-auto object-contain transform group-hover:scale-110 transition-transform duration-500"
-                      />
-                    </div>
-                    <p className="text-center font-semibold text-gray-800 mt-4 group-hover:text-cyan-600 transition-colors duration-300">Normal Design</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div className="hidden lg:block" />
         </div>
-
-        <div className="mt-20 bg-white rounded-3xl shadow-xl p-8 md:p-12 transform hover:shadow-2xl transition-all duration-500 animate-fadeInUp" 
-             style={{ animationDelay: '1.2s' }}>
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Mission</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-cyan-600 mx-auto rounded-full animate-expandWidth" />
-          </div>
-          <p className="text-lg text-gray-700 leading-relaxed max-w-4xl mx-auto text-center">
-            Our mission is to deliver pure, safe, and high-quality drinking water that enriches health
-            and convenience for every customer, while empowering businesses to build their own brand
-            identity through reliable white-label water solutions. We aim to set new benchmarks in purity,
-            packaging, and service excellence, guided by a deep respect for sustainability, customer trust,
-            and community well-being.
-          </p>
-        </div>
-      </div>
-
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes slideInLeft {
-          from {
-            opacity: 0;
-            transform: translateX(-50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes fadeInRight {
-          from {
-            opacity: 0;
-            transform: translateX(50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0) rotate(6deg);
-          }
-          50% {
-            transform: translateY(-20px) rotate(6deg);
-          }
-        }
-
-        @keyframes expandWidth {
-          from {
-            width: 0;
-          }
-          to {
-            width: 6rem;
-          }
-        }
-
-        @keyframes gradient {
-          0%, 100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-
-        .animate-fadeInUp {
-          animation: fadeInUp 0.8s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-slideInLeft {
-          animation: slideInLeft 0.8s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-slideInUp {
-          animation: slideInUp 0.8s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-fadeInRight {
-          animation: fadeInRight 1s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-
-        .animate-expandWidth {
-          animation: expandWidth 1s ease-out forwards;
-        }
-
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 3s ease infinite;
-        }
-      `}</style>
-    </section>
+      </section>
+    </div>
   );
 }

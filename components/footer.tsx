@@ -1,133 +1,104 @@
 'use client';
 
-import { Droplets, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
+import { Instagram, Linkedin, Mail, MapPin, Phone, Twitter } from 'lucide-react';
 import Link from 'next/link';
+import { WaveEdge } from '@/components/site/motion';
+import { CONTACT, NAV_LINKS } from '@/lib/site-data';
+
+const SOCIAL = [
+  { icon: Instagram, label: 'Instagram', href: 'https://www.instagram.com/vaari_solutions?igsh=MWJqaXJiOG92OHUzbQ%3D%3D&utm_source=qr' },
+  { icon: Twitter, label: 'X (Twitter)', href: 'https://x.com/vaari_solutions?s=21' },
+  { icon: Linkedin, label: 'LinkedIn', href: 'https://www.linkedin.com/company/vaari-solutions/' },
+];
+
+const LEGAL = [
+  { name: 'Privacy Policy', href: '/privacy-policy' },
+  { name: 'Terms & Conditions', href: '/terms-conditions' },
+  { name: 'Refund Policy', href: '/refund-policy' },
+];
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+  const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid md:grid-cols-4 gap-8 mb-8">
-          <div className="md:col-span-1">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-2 rounded-lg">
-                <Droplets className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold">VAARI</h3>
-                <p className="text-xs text-gray-400">by SATPREM SOLUTIONS</p>
-              </div>
-            </div>
-            <p className="text-gray-400 text-sm leading-relaxed">
+    <footer className="relative bg-ink pt-16 text-white">
+      <WaveEdge color="#07263a" className="absolute inset-x-0 bottom-[calc(100%-1px)]" />
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.3fr_1fr]">
+          <div>
+            <img src="/brand/vaari-logo-light.webp" alt="VAARI" loading="lazy" className="h-14 w-auto" />
+            <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/65">
               Pure, safe, and refreshing drinking water delivered with excellence across Delhi NCR.
             </p>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-lg mb-4">Quick Links</h4>
-            <ul className="space-y-2">
-              {[
-                { name: 'Home', href: '#home' },
-                { name: 'About Us', href: '#about' },
-                { name: 'Products', href: '#products' },
-                { name: 'Delivery', href: '#delivery' },
-                { name: 'Testimonials', href: '#testimonials' },
-                { name: 'Contact', href: '#contact' },
-              ].map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-gray-400 hover:text-blue-400 transition-colors text-sm"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-lg mb-4">Contact Info</h4>
-            <ul className="space-y-3">
-              <li className="flex items-start space-x-3">
-                <Phone className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <a href="tel:+919268448510" className="text-gray-400 hover:text-blue-400 block">
-                    +91 9268448510
-                  </a>
-                  <a href="tel:+918929695631" className="text-gray-400 hover:text-blue-400 block">
-                    +91 8929695631
-                  </a>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Mail className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
+            <div className="mt-6 flex gap-2">
+              {SOCIAL.map((social) => (
                 <a
-                  href="mailto:Vaarisatpremsolutions@yahoo.com"
-                  className="text-gray-400 hover:text-blue-400 text-sm break-all"
-                >
-                  Vaarisatpremsolutions@yahoo.com
-                </a>
-              </li>
-              <li className="flex items-start space-x-3">
-                <MapPin className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-400 text-sm">Delhi NCR, India</span>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-lg mb-4">Legal</h4>
-            <ul className="space-y-2 mb-6">
-              {[
-                { name: 'Privacy Policy', href: '/privacy-policy' },
-                { name: 'Terms & Conditions', href: '/terms-conditions' },
-                { name: 'Refund Policy', href: '/refund-policy' },
-              ].map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-gray-400 hover:text-blue-400 transition-colors text-sm"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-
-            <h4 className="font-bold text-lg mb-4">Follow Us</h4>
-            <div className="flex space-x-3">
-              {[
-                { icon: Facebook, href: '#' },
-                { icon: Instagram, href: 'https://www.instagram.com/vaari_solutions?igsh=MWJqaXJiOG92OHUzbQ%3D%3D&utm_source=qr' },
-                { icon: Twitter, href: 'https://x.com/vaari_solutions?s=21' },
-                { icon: Linkedin, href: 'https://www.linkedin.com/company/vaari-solutions/' },
-              ].map((social, index) => (
-                <a
-                  key={index}
+                  key={social.label}
                   href={social.href}
-                  className="w-10 h-10 bg-gray-800 hover:bg-blue-600 rounded-lg flex items-center justify-center transition-colors"
+                  aria-label={social.label}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-white/20 transition-all duration-300 hover:-translate-y-1 hover:border-copper-light hover:bg-copper-light hover:text-ink"
                 >
-                  <social.icon className="h-5 w-5" />
+                  <social.icon className="h-4 w-4" />
                 </a>
               ))}
             </div>
           </div>
+
+          <FooterColumn title="Quick Links">
+            {NAV_LINKS.map((link) => (
+              <li key={link.name}>
+                <a href={link.href} className="text-white/65 transition-colors hover:text-aqua">{link.name}</a>
+              </li>
+            ))}
+          </FooterColumn>
+
+          <FooterColumn title="Contact Info">
+            <li className="flex gap-3">
+              <Phone className="mt-0.5 h-4 w-4 shrink-0 text-aqua" />
+              <span>
+                <a href={CONTACT.phoneHref} className="block text-white/65 hover:text-aqua">+91 {CONTACT.phone}</a>
+                <a href="tel:+918929695631" className="block text-white/65 hover:text-aqua">+91 {CONTACT.whatsapp}</a>
+              </span>
+            </li>
+            <li className="flex gap-3">
+              <Mail className="mt-0.5 h-4 w-4 shrink-0 text-aqua" />
+              <a href={CONTACT.emailHref} className="break-all text-white/65 hover:text-aqua">{CONTACT.email}</a>
+            </li>
+            <li className="flex gap-3">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-aqua" />
+              <span className="text-white/65">Delhi NCR, India</span>
+            </li>
+          </FooterColumn>
+
+          <FooterColumn title="Legal">
+            {LEGAL.map((link) => (
+              <li key={link.name}>
+                <Link href={link.href} className="text-white/65 transition-colors hover:text-aqua">{link.name}</Link>
+              </li>
+            ))}
+          </FooterColumn>
         </div>
 
-        <div className="border-t border-gray-800 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-gray-400 text-sm text-center md:text-left">
-              &copy; {currentYear} VAARI by SATPREM SOLUTIONS. All rights reserved.
-            </p>
-            <p className="text-gray-400 text-sm text-center md:text-right">
-              FSSAI Certified | Quality Assured | Eco-Friendly
-            </p>
-          </div>
+        <div aria-hidden className="water-text mt-14 select-none text-center font-display font-light italic leading-[1.1] [font-size:clamp(5rem,23vw,22rem)]">
+          Vaari
+        </div>
+
+        <div className="flex flex-col items-center justify-between gap-2 border-t border-white/10 py-6 text-center text-xs text-white/55 md:flex-row">
+          <p>&copy; {year} VAARI by SATPREM SOLUTIONS. All rights reserved.</p>
+          <p>FSSAI Certified | Quality Assured | Eco-Friendly</p>
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="mb-4 font-sans text-xs font-bold uppercase tracking-[0.18em] text-white/90">{title}</h3>
+      <ul className="space-y-2.5 text-sm">{children}</ul>
+    </div>
   );
 }
