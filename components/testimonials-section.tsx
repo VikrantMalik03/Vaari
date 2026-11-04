@@ -12,7 +12,7 @@ export function TestimonialsSection() {
           <p className="eyebrow mb-6 text-copper-dark">What Our Customers Say</p>
         </Reveal>
         <RiseText
-          text="Trusted by individuals and businesses across Delhi NCR."
+          text="Trusted by individuals and businesses across Haryana."
           className="max-w-4xl text-4xl font-light leading-[1.06] text-ink sm:text-6xl"
         />
 

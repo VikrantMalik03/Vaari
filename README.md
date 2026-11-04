@@ -141,7 +141,7 @@ The static site will be generated in the `out` directory.
 
 ### Product Sections
 - **Normal Range**: Standard bottled water (200ml, 250ml, 500ml, 1L)
-- **Premium Range**: Copper-enriched water (200ml, 250ml, 500ml, 1L)
+- **Premium Range**: Premium RO purified water (200ml, 250ml, 500ml, 1L)
 - Filterable by product type
 - Direct ordering CTA buttons
 

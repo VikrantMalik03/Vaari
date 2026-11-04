@@ -14,7 +14,7 @@ import { TestimonialsSection } from '@/components/testimonials-section';
 import { WhatsAppButton } from '@/components/whatsapp-button';
 import { WhiteLabelSection } from '@/components/white-label-section';
 
-const TICKER = ['Stay Pure', 'Stay Hydrated', 'With the Goodness of Copper', 'FSSAI Certified', 'Delivered Across Delhi NCR', 'White-Label Solutions'];
+const TICKER = ['Stay Pure', 'Stay Hydrated', 'RO Purified', 'FSSAI Certified', 'Delivered Across Haryana', 'White-Label Solutions'];
 
 function Ticker() {
   return (

@@ -18,7 +18,7 @@ export const NAV_LINKS = [
   { name: 'Contact', href: '#contact' },
 ];
 
-export const CITIES = ['Delhi', 'Noida', 'Gurgaon', 'Ghaziabad', 'Faridabad'];
+export const CITIES = ['Faridabad', 'Gurgaon', 'Hodal', 'Palwal',];
 
 export type ProductTheme = 'light' | 'copper' | 'deep';
 
@@ -41,7 +41,7 @@ export interface Product {
   priceNote?: string;
 }
 
-/** Drop the 20 litre photo at this path and the site swaps it in by itself. */
+/** Save the 20 litre photo at this path. It appears on the next build or dev server restart. */
 export const TWENTY_LITRE_IMAGE = '/bottles/vaari-20l.png';
 
 export const PRODUCTS: Product[] = [

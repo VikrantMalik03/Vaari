@@ -193,7 +193,7 @@ export function HeroSection() {
               transition={{ duration: 0.9, delay: INTRO_DELAY + 0.55 }}
               className="text-[15px] leading-relaxed text-white/80"
             >
-              Experience the purity of copper-based RO purified water. Every drop is a commitment to
+              Experience the purity of RO purified water. Every drop is a commitment to
               your health.
             </motion.p>
           </motion.div>
@@ -237,17 +237,17 @@ export function HeroSection() {
             style={{ opacity: callouts, x: calloutShift }}
             className="absolute right-[7vw] top-[50vh] z-10 hidden max-w-[24vw] text-right lg:block"
           >
-            <p className="font-display text-4xl font-light italic text-copper-light xl:text-5xl">Copper Enriched</p>
+            <p className="font-display text-4xl font-light italic text-copper-light xl:text-5xl">FSSAI Certified</p>
             <div className="my-4 ml-auto h-px w-[85%] bg-gradient-to-l from-copper-light/80 to-transparent" />
             <p className="text-[15px] leading-relaxed text-white/75">
-              With the goodness of copper, for water that does more than quench your thirst.
+              Compliant with food safety and quality standards, so you can trust every bottle.
             </p>
           </motion.div>
           <motion.p
             style={{ opacity: callouts }}
             className="absolute inset-x-6 top-[11vh] z-10 text-center font-display text-2xl font-light italic text-white lg:hidden"
           >
-            RO purified. <span className="text-copper-light">Copper enriched.</span>
+            RO purified. <span className="text-copper-light">FSSAI certified.</span>
           </motion.p>
         </div>
       </section>
@@ -258,7 +258,7 @@ export function HeroSection() {
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 lg:min-h-screen lg:grid-cols-2 lg:items-center lg:py-28">
           <div>
             <Reveal>
-              <p className="eyebrow mb-6 text-copper-dark">With the goodness of copper</p>
+              <p className="eyebrow mb-6 text-copper-dark">Pure. Safe. Refreshing.</p>
             </Reveal>
             <RiseText
               text="Water you can trust, in every single drop."
@@ -266,14 +266,14 @@ export function HeroSection() {
             />
             <Reveal delay={0.15}>
               <p className="mt-7 max-w-lg text-lg leading-relaxed text-ink/70">
-                Our water is sourced from a state-of-the-art Copper-Based RO Purifier, combining
-                advanced Reverse Osmosis filtration technology with the natural benefits of copper.
+                Our water is purified with a state-of-the-art RO system, using
+                advanced Reverse Osmosis filtration technology for crystal-clear, safe drinking water.
               </p>
             </Reveal>
 
             <img
               src="/bottles/vaari-premium-1l.webp"
-              alt="VAARI Premium Crystal 1 litre bottle with a copper label"
+              alt="VAARI Premium Crystal 1 litre bottle"
               loading="lazy"
               className="mx-auto mt-10 h-[56vh] w-auto drop-shadow-[0_26px_26px_rgba(7,38,58,0.25)] lg:hidden"
             />

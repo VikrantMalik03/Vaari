@@ -7,7 +7,7 @@ import { Reveal, RiseText, WaveEdge } from '@/components/site/motion';
 import { CITIES, CONTACT } from '@/lib/site-data';
 
 const FACTS = [
-  { icon: MapPin, title: 'Service Area', lead: 'Delhi NCR', text: 'Including Delhi, Noida, Gurgaon, Ghaziabad, and Faridabad' },
+  { icon: MapPin, title: 'Service Area', lead: 'Haryana', text: 'Including  Faridabad, Gurgaon, Hodal and Palwal' },
   { icon: Clock, title: 'Working Hours', lead: CONTACT.hours, text: 'Monday to Saturday. Sunday by appointment only' },
   { icon: Truck, title: 'Delivery Schedule', lead: 'Daily & Weekly', text: 'Within 48hrs delivery available for bulk orders' },
 ];
@@ -51,7 +51,7 @@ export function DeliverySection() {
           <p className="eyebrow mb-6 text-aqua">Distribution & Delivery</p>
         </Reveal>
         <RiseText
-          text="Fast, reliable delivery across Delhi NCR."
+          text="Fast, reliable delivery across Haryana."
           className="max-w-4xl text-4xl font-light leading-[1.05] sm:text-6xl"
         />
 

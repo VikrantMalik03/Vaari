@@ -22,6 +22,8 @@ FONTS = Path("C:/Windows/Fonts")
 
 SS = 3  # label supersampling
 MAX_HEIGHT = 1240
+LOGO_HEIGHT = 765
+LOGO_WORDMARK_TOP = 502
 
 COPPER_DARK = (112, 58, 30)
 COPPER = (184, 107, 61)
@@ -93,7 +95,9 @@ def fit_tracked(draw, center_x, y, text, font_name, size, fill, tracking_em, max
 
 
 def load_logo():
+    """The logo without its old tagline, which sat below LOGO_HEIGHT."""
     logo = Image.open(PUBLIC / "logo_vaari.png").convert("RGBA")
+    logo = logo.crop((0, 0, logo.width, LOGO_HEIGHT))
     return logo
 
 
@@ -102,7 +106,7 @@ def tinted(logo, color):
     arr = np.asarray(logo, dtype=np.float32)
     lum = arr[:, :, :3].mean(axis=2) / 255.0
     shade = 0.56 + 0.44 * np.clip(lum * 1.35, 0, 1)
-    split = int(logo.height * 0.585)
+    split = LOGO_WORDMARK_TOP
     shade[split:] = 1.0
     rgb = np.stack([np.full(lum.shape, c) * shade for c in color], axis=2)
     return Image.fromarray(np.dstack([rgb, arr[:, :, 3]]).astype(np.uint8), "RGBA")
@@ -165,7 +169,7 @@ def build_label(style, qty, w, h):
         y += W * 0.15
         fit_tracked(d, cx, y, "PACKAGED DRINKING WATER", "seguisb.ttf", W * 0.05, cream + (235,), 0.12, W - margin * 2.4)
         y += W * 0.125
-        fit_tracked(d, cx, y, "COPPER-ENRICHED RO", "segoeui.ttf", W * 0.045, cream + (215,), 0.14, W - margin * 2.4)
+        fit_tracked(d, cx, y, "RO PURIFIED", "segoeui.ttf", W * 0.045, cream + (215,), 0.14, W - margin * 2.4)
 
         q = font("georgia.ttf", W * 0.15)
         qw = d.textlength(qty, font=q)
@@ -196,8 +200,8 @@ def build_label(style, qty, w, h):
             size = min(W * 0.052, H * 0.024)
             fit_tracked(d, cx, y, "PACKAGED DRINKING WATER", "seguisb.ttf", size, INK + (255,), 0.1, W - margin * 2)
             y += size * 1.9
-            fit_tracked(d, cx, y, "COPPER-ENRICHED RO", "segoeui.ttf", size * 0.88, OCEAN + (255,), 0.12, W - margin * 2)
-            y += size * 2.6
+            fit_tracked(d, cx, y, "RO PURIFIED", "segoeui.ttf", size * 0.88, OCEAN + (255,), 0.12, W - margin * 2)
+            y += size * 4.2
 
             step = (band_top - y) / 3
             layers = [(y, AQUA, OCEAN, 0.2, 1.2, 0.4), (y + step, (64, 170, 205), OCEAN, 0.17, 1.5, 2.2), (band_top - step * 0.1, OCEAN, DEEP, 0.15, 1.1, 4.1)]
@@ -219,7 +223,7 @@ def build_label(style, qty, w, h):
             q = font("georgia.ttf", H * 0.115)
             qw = d.textlength(qty, font=q)
             d.text((cx - qw / 2, H * 0.745), qty, font=q, fill=(255, 255, 255, 255))
-            fit_tracked(d, cx, H * 0.89, "COPPER-ENRICHED RO  ·  NET QUANTITY", "seguisb.ttf", H * 0.028, (235, 248, 252, 255), 0.14, W * 0.6)
+            fit_tracked(d, cx, H * 0.89, "RO PURIFIED  ·  NET QUANTITY", "seguisb.ttf", H * 0.028, (235, 248, 252, 255), 0.14, W * 0.6)
 
     return img.resize((w, h), Image.LANCZOS)
 
@@ -377,6 +381,7 @@ def process(cfg):
 
 if __name__ == "__main__":
     imgs = {c["out"]: process(c) for c in BOTTLES}
+    load_logo().save(PUBLIC / "brand" / "vaari-logo-stacked.webp", "WEBP", quality=92, alpha_quality=95, method=6)
 
     # Contact sheet on dark and light, for checking edges.
     import sys

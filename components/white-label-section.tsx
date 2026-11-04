@@ -11,7 +11,7 @@ const STEPS = [
   { icon: Upload, title: 'Share your brand', text: 'Send us your logo and the details you want on the label.' },
   { icon: PenTool, title: 'We design the label', text: 'Our team prepares a custom label for your bottles.' },
   { icon: FileCheck2, title: 'You approve', text: 'Production starts once you are happy with the design.' },
-  { icon: Truck, title: 'We bottle and deliver', text: 'Your branded water arrives across Delhi NCR.' },
+  { icon: Truck, title: 'We bottle and deliver', text: 'Your branded water arrives across Haryana.' },
 ];
 
 // Blank panel on the vaari-custom-1l render, as a percentage of the image.

@@ -28,7 +28,7 @@ export function Footer() {
           <div>
             <img src="/brand/vaari-logo-light.webp" alt="VAARI" loading="lazy" className="h-14 w-auto" />
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/65">
-              Pure, safe, and refreshing drinking water delivered with excellence across Delhi NCR.
+              Pure, safe, and refreshing drinking water delivered with excellence across Haryana.
             </p>
             <div className="mt-6 flex gap-2">
               {SOCIAL.map((social) => (
@@ -68,7 +68,7 @@ export function Footer() {
             </li>
             <li className="flex gap-3">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-aqua" />
-              <span className="text-white/65">Delhi NCR, India</span>
+              <span className="text-white/65">Haryana, India</span>
             </li>
           </FooterColumn>
 

@@ -91,7 +91,7 @@ export function ContactSection() {
               <span className="font-bold text-ink">{CONTACT.hours}, {CONTACT.days}</span>
             </Info>
             <Info icon={<MapPin />} title="Service Area">
-              <span className="font-bold text-ink">Delhi, Noida, Gurgaon, Ghaziabad, Faridabad</span>
+              <span className="font-bold text-ink"> Faridabad, Gurgaon, Hodal, Palwal</span>
             </Info>
           </div>
         </div>

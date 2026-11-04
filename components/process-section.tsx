@@ -10,16 +10,12 @@ const STEPS = [
     text: 'Crystal-clear water free from contaminants, impurities, and harmful substances through our multi-stage RO process.',
   },
   {
-    title: 'Copper Enrichment',
-    text: "Water enriched with copper's natural health-boosting properties, including antimicrobial benefits and improved immunity.",
-  },
-  {
     title: 'Quality Certified',
     text: 'Certified by the Food Safety and Standards Authority of India (FSSAI), ensuring compliance with the highest food safety and quality standards.',
   },
   {
     title: 'Sealed & Delivered',
-    text: 'Bottled in eco-friendly packaging and delivered across Delhi NCR on daily and weekly schedules.',
+    text: 'Bottled in eco-friendly packaging and delivered across Haryana on daily and weekly schedules.',
   },
 ];
 
@@ -34,7 +30,7 @@ export function ProcessSection() {
   });
 
   return (
-    <section ref={ref} className="relative h-[320vh] bg-ink text-white">
+    <section ref={ref} className="relative h-[260vh] bg-ink text-white">
       <div className="noise screen-h sticky top-0 overflow-hidden">
         <div className="mx-auto grid h-full max-w-7xl grid-cols-[92px_1fr] items-center pt-14 gap-6 px-5 sm:grid-cols-[180px_1fr] sm:gap-12 sm:px-8 lg:grid-cols-[300px_1fr] lg:gap-24">
           {/* A glass column that fills as the reader scrolls. */}
@@ -45,17 +41,12 @@ export function ProcessSection() {
               </svg>
             </motion.div>
             <div className="absolute inset-y-6 left-[18%] w-2 rounded-full bg-white/30 blur-[2px]" />
-            <motion.div
-              animate={{ opacity: active >= 1 ? 1 : 0, scale: active >= 1 ? 1 : 0.6 }}
-              transition={{ duration: 0.6 }}
-              className="absolute left-1/2 top-1/2 h-1/3 w-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-copper-light/40 blur-2xl"
-            />
           </div>
 
           <div>
             <p className="eyebrow mb-4 text-aqua">Our Water Source</p>
             <RiseText
-              text="Copper-Based RO Purification"
+              text="Advanced RO Purification"
               className="mb-8 max-w-2xl text-3xl font-light leading-[1.08] sm:text-5xl lg:mb-12 lg:text-6xl"
             />
             <ol className="space-y-1">

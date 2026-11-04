@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-motion';
 import { ArrowRight, Award, Droplets, ShieldCheck, Sparkles } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { scrollToTarget, RiseText } from '@/components/site/motion';
 import { PRODUCTS, TWENTY_LITRE_IMAGE, type Product } from '@/lib/site-data';
 
@@ -10,7 +10,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 const QUALITIES = [
   { icon: ShieldCheck, label: 'RO Purified' },
-  { icon: Award, label: 'Copper Enriched' },
+  { icon: Award, label: 'FSSAI Certified' },
   { icon: Droplets, label: '100% Pure' },
 ];
 
@@ -45,7 +45,7 @@ function TwentyLitreIllustration() {
       ))}
       <path d="M58 130 C46 170 46 440 58 510" fill="none" stroke="#fff" strokeOpacity="0.55" strokeWidth="9" strokeLinecap="round" />
       <rect x="50" y="218" width="200" height="214" rx="6" fill="#fff" />
-      <image href="/logo_vaari.png" x="88" y="230" width="124" height="146" />
+      <image href="/brand/vaari-logo-stacked.webp" x="88" y="236" width="124" height="130" />
       <text x="150" y="412" textAnchor="middle" fontFamily="Georgia, serif" fontSize="28" fill="#0a3350">
         20 L
       </text>
@@ -54,18 +54,9 @@ function TwentyLitreIllustration() {
 }
 
 function BottleImage({ product }: { product: Product }) {
-  const isTwenty = product.image === TWENTY_LITRE_IMAGE;
-  const [hasPhoto, setHasPhoto] = useState(false);
-
-  // Checked after mount so a missing photo falls back to the illustration without a broken image.
-  useEffect(() => {
-    if (!isTwenty) return;
-    const probe = new window.Image();
-    probe.onload = () => setHasPhoto(true);
-    probe.src = TWENTY_LITRE_IMAGE;
-  }, [isTwenty]);
-
-  if (isTwenty && !hasPhoto) return <TwentyLitreIllustration />;
+  if (product.image === TWENTY_LITRE_IMAGE && process.env.NEXT_PUBLIC_HAS_20L_PHOTO !== 'true') {
+    return <TwentyLitreIllustration />;
+  }
   return <img src={product.image} alt={`VAARI ${product.name}`} loading="lazy" className="h-full w-auto" />;
 }
 
