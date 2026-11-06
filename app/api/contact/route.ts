@@ -21,6 +21,9 @@ export async function POST(req: Request) {
       subject,
       // reply_to: email, // so you can reply directly to the customer
       html,
+      attachments: parsed.data.logo
+        ? [{ filename: 'customer-logo.png', content: parsed.data.logo.split(',')[1] }]
+        : undefined,
     });
 
     if (response.error) {

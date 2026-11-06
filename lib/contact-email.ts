@@ -12,6 +12,12 @@ export const contactSchema = z.object({
   phone: z.string().trim().min(1).max(30),
   message: z.string().trim().min(1).max(5000),
   inquiry_type: z.enum(['general', 'bulk_order', 'white_label']),
+  // PNG produced by the white-label section. The prefix checks it really is a PNG.
+  logo: z
+    .string()
+    .max(2_800_000)
+    .regex(/^data:image\/png;base64,iVBORw0KGgo[A-Za-z0-9+/=]+$/)
+    .optional(),
 });
 
 export type ContactInquiry = z.infer<typeof contactSchema>;
@@ -26,7 +32,7 @@ export function escapeHtml(value: string) {
 }
 
 /** Visitor text is escaped before it goes in the email, so it can only ever show as plain text. */
-export function buildContactEmail({ name, email, phone, message, inquiry_type }: ContactInquiry) {
+export function buildContactEmail({ name, email, phone, message, inquiry_type, logo }: ContactInquiry) {
   const type = INQUIRY_LABELS[inquiry_type];
   return {
     // Line breaks are removed so a name cannot add extra lines to the subject.
@@ -39,6 +45,7 @@ export function buildContactEmail({ name, email, phone, message, inquiry_type }:
         <p><strong>Inquiry Type:</strong> ${type}</p>
         <p><strong>Message:</strong></p>
         <p>${escapeHtml(message).replace(/\r?\n/g, '<br>')}</p>
+        ${logo ? '<p><em>The customer attached their logo to this email.</em></p>' : ''}
       `,
   };
 }

@@ -1,11 +1,18 @@
 import { z } from 'zod';
 import { escapeHtml } from '@/lib/contact-email';
 
+export const FEEDBACK_LINK_ERROR = 'Please remove links from your feedback.';
+
 export const feedbackSchema = z.object({
   name: z.string().trim().min(2).max(80),
   company: z.string().trim().max(100).optional().default(''),
   rating: z.number().int().min(1).max(5),
-  message: z.string().trim().min(10).max(1000),
+  message: z
+    .string()
+    .trim()
+    .min(10)
+    .max(1000)
+    .refine((text) => !/(https?:\/\/|www\.)/i.test(text), FEEDBACK_LINK_ERROR),
   consent: z.literal(true),
 });
 
@@ -22,8 +29,8 @@ export interface PublishedFeedback {
 
 export function buildFeedbackEmail({ name, company, rating, message }: FeedbackInput, saved: boolean) {
   const next = saved
-    ? 'It is saved and hidden. Set is_approved to true on its row in Supabase to publish it.'
-    : 'It could not be saved to the database, so this email is the only copy.';
+    ? 'It is now live on the website. To remove it, delete its row in the testimonials table in Supabase.'
+    : 'It could not be saved to the database, so it is not on the website and this email is the only copy.';
   return {
     subject: `New ${rating}-star feedback from ${name.replace(/[\r\n]+/g, ' ')}`,
     html: `

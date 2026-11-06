@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Clock, Loader2, Mail, MapPin, MessageCircle, Phone, Send } from 'lucide-react';
+import { Clock, Loader2, Mail, MapPin, MessageCircle, Phone, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import { Reveal, RiseText } from '@/components/site/motion';
@@ -24,6 +24,7 @@ const LABEL =
 export function ContactSection() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState(EMPTY);
+  const [logo, setLogo] = useState<string | null>(null);
   const messageRef = useRef<HTMLTextAreaElement>(null);
 
   const set = (field: keyof typeof EMPTY, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
@@ -38,8 +39,22 @@ export function ContactSection() {
         message: `Hi, I would like to know more about ${product.name}.`,
       }));
     };
+    // The white-label section passes along the brand name and logo.
+    const onWhiteLabel = (event: Event) => {
+      const { brand, logo: chosenLogo } = (event as CustomEvent<{ brand: string; logo: string | null }>).detail;
+      setLogo(chosenLogo);
+      setForm((prev) => ({
+        ...prev,
+        inquiry_type: 'white_label',
+        message: `Hi, I would like custom labelled bottles${brand ? ` for ${brand}` : ''}.`,
+      }));
+    };
     window.addEventListener('vaari:enquire', onEnquire);
-    return () => window.removeEventListener('vaari:enquire', onEnquire);
+    window.addEventListener('vaari:white-label', onWhiteLabel);
+    return () => {
+      window.removeEventListener('vaari:enquire', onEnquire);
+      window.removeEventListener('vaari:white-label', onWhiteLabel);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,11 +64,12 @@ export function ContactSection() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(logo ? { ...form, logo } : form),
       });
       if (!res.ok) throw new Error('Failed to send');
       toast.success('Inquiry submitted successfully! We will contact you soon.');
       setForm(EMPTY);
+      setLogo(null);
     } catch (error) {
       console.error(error);
       toast.error('Something went wrong. Please call us directly.');
@@ -134,6 +150,16 @@ export function ContactSection() {
                 <label htmlFor="message" className={LABEL}>Message *</label>
               </div>
             </div>
+
+            {logo && (
+              <div className="mt-6 flex items-center gap-3 rounded-2xl bg-foam p-3">
+                <img src={logo} alt="Your logo" className="h-10 w-10 rounded-md bg-white object-contain" />
+                <span className="flex-1 text-sm font-semibold text-ink">Your logo will be sent with this message</span>
+                <button type="button" onClick={() => setLogo(null)} aria-label="Remove logo" className="grid h-9 w-9 place-items-center rounded-full text-ink/60 hover:bg-white">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
 
             <motion.button
               type="submit"

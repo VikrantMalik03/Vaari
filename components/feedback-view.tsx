@@ -5,10 +5,11 @@ import { Check, Loader2, Send, Star } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Toaster, toast } from 'sonner';
 import { Footer } from '@/components/footer';
+import { ReviewCard } from '@/components/review-card';
 import { Navigation } from '@/components/navigation';
 import { Bubbles, MotionProvider, Reveal, RiseText, scrollToTarget, WaveEdge } from '@/components/site/motion';
 import { WhatsAppButton } from '@/components/whatsapp-button';
-import type { PublishedFeedback } from '@/lib/feedback';
+import { FEEDBACK_LINK_ERROR, type PublishedFeedback } from '@/lib/feedback';
 
 const EMPTY = { name: '', company: '', message: '', website: '' };
 const RATING_WORDS = ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'];
@@ -18,23 +19,14 @@ const FIELD =
 const LABEL =
   'pointer-events-none absolute left-0 top-6 text-base text-ink/55 transition-all duration-300 peer-focus:top-0 peer-focus:text-xs peer-focus:font-bold peer-focus:text-copper-dark peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:font-bold';
 
-function Stars({ rating }: { rating: number }) {
-  return (
-    <div className="flex gap-1" role="img" aria-label={`Rated ${rating} out of 5`}>
-      {[1, 2, 3, 4, 5].map((n) => (
-        <Star key={n} className={`h-4 w-4 ${n <= rating ? 'fill-copper text-copper' : 'text-ink/20'}`} />
-      ))}
-    </div>
-  );
-}
-
-function FeedbackForm() {
+function FeedbackForm({ onPublished }: { onPublished: (review: PublishedFeedback) => void }) {
   const [form, setForm] = useState(EMPTY);
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [live, setLive] = useState(false);
   const [ratingError, setRatingError] = useState(false);
   const card = useRef<HTMLDivElement>(null);
 
@@ -60,7 +52,15 @@ function FeedbackForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, rating, consent }),
       });
-      if (!res.ok) throw new Error('Failed to send');
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        toast.error(data?.error === FEEDBACK_LINK_ERROR ? FEEDBACK_LINK_ERROR : 'We could not save your feedback. Please try again in a little while.');
+        return;
+      }
+      if (data?.feedback) {
+        onPublished(data.feedback);
+        setLive(true);
+      }
       setSent(true);
     } catch (error) {
       console.error(error);
@@ -85,7 +85,7 @@ function FeedbackForm() {
             </motion.span>
             <h2 className="mt-6 text-3xl font-light text-ink">Thank you, {form.name.split(' ')[0]}</h2>
             <p className="mx-auto mt-3 max-w-sm leading-relaxed text-ink/65">
-              Our team has received your feedback. It will appear on this page once it has been reviewed.
+              {live ? 'Your review is now live on this page.' : 'Our team has received your feedback.'}
             </p>
           </motion.div>
         ) : (
@@ -94,7 +94,7 @@ function FeedbackForm() {
             <p className="mb-7 mt-1.5 text-sm text-ink/60">Tell us how VAARI has been for you.</p>
 
             <fieldset>
-              <legend className="mb-2 text-xs font-bold text-ink/60">Your rating *</legend>
+              <legend className="mb-2 text-xs font-bold text-ink/60">Your star rating (required) *</legend>
               <div className="flex items-center gap-1" onMouseLeave={() => setHovered(0)}>
                 {[1, 2, 3, 4, 5].map((n) => (
                   <motion.button
@@ -116,7 +116,7 @@ function FeedbackForm() {
                 ))}
                 <span className="ml-2 text-sm font-semibold text-ink/65">{RATING_WORDS[shown]}</span>
               </div>
-              {ratingError && <p className="mt-1 text-sm font-semibold text-destructive">Please choose a rating.</p>}
+              {ratingError && <p role="alert" className="mt-1 text-sm font-semibold text-destructive">Please choose a star rating out of 5.</p>}
             </fieldset>
 
             <div className="mt-6 space-y-6">
@@ -138,11 +138,17 @@ function FeedbackForm() {
               <input aria-hidden tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => set('website', e.target.value)} className="absolute -left-[9999px] h-0 w-0 opacity-0" />
               <label className="flex cursor-pointer items-start gap-3 text-sm leading-snug text-ink/70">
                 <input type="checkbox" required checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-[#1f7299]" />
-                VAARI may publish my name and feedback on this website.
+                Publish my name and feedback on this website straight away.
               </label>
             </div>
 
-            <button type="submit" disabled={loading} className="btn-fill mt-8 w-full bg-ink py-5 text-base text-white disabled:opacity-70">
+            <button
+              type="submit"
+              disabled={loading}
+              onClick={() => {
+                if (!rating) setRatingError(true);
+              }}
+              className="btn-fill mt-8 w-full bg-ink py-5 text-base text-white disabled:opacity-70">
               {loading ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" /> Sending...
@@ -160,7 +166,13 @@ function FeedbackForm() {
   );
 }
 
-export function FeedbackView({ feedback }: { feedback: PublishedFeedback[] }) {
+/** Highest ratings first, then newest, matching the order from the database. */
+function byRating(a: PublishedFeedback, b: PublishedFeedback) {
+  return b.rating - a.rating || b.created_at.localeCompare(a.created_at);
+}
+
+export function FeedbackView({ feedback: initial }: { feedback: PublishedFeedback[] }) {
+  const [feedback, setFeedback] = useState(initial);
   const average = feedback.length ? feedback.reduce((sum, f) => sum + f.rating, 0) / feedback.length : 0;
 
   return (
@@ -199,21 +211,7 @@ export function FeedbackView({ feedback }: { feedback: PublishedFeedback[] }) {
                 <div className="grid gap-5 sm:grid-cols-2">
                   {feedback.map((item, i) => (
                     <Reveal key={item.id} delay={(i % 2) * 0.1} y={26}>
-                      <figure className="flex h-full flex-col justify-between rounded-3xl border border-ink/10 bg-white p-6 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_26px_50px_-28px_rgba(10,51,80,0.55)]">
-                        <div>
-                          <Stars rating={item.rating} />
-                          <blockquote className="mt-4 whitespace-pre-line break-words leading-relaxed text-ink/85">{item.message}</blockquote>
-                        </div>
-                        <figcaption className="mt-6 flex items-center gap-3">
-                          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-ocean to-ocean-deep font-display text-white">
-                            {item.customer_name[0].toUpperCase()}
-                          </span>
-                          <span className="min-w-0">
-                            <span className="block truncate text-sm font-bold text-ink">{item.customer_name}</span>
-                            {item.company_name && <span className="block truncate text-xs text-ink/60">{item.company_name}</span>}
-                          </span>
-                        </figcaption>
-                      </figure>
+                      <ReviewCard review={item} />
                     </Reveal>
                   ))}
                 </div>
@@ -222,7 +220,7 @@ export function FeedbackView({ feedback }: { feedback: PublishedFeedback[] }) {
 
             <div className="order-1 lg:sticky lg:top-28 lg:order-2">
               <Reveal y={40}>
-                <FeedbackForm />
+                <FeedbackForm onPublished={(review) => setFeedback((list) => [review, ...list].sort(byRating))} />
               </Reveal>
             </div>
           </div>

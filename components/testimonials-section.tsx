@@ -1,53 +1,66 @@
 'use client';
 
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { ReviewCard } from '@/components/review-card';
 import { Counter, Reveal, RiseText } from '@/components/site/motion';
-import { STATS, TESTIMONIALS } from '@/lib/site-data';
+import type { PublishedFeedback } from '@/lib/feedback';
+import { STATS } from '@/lib/site-data';
+
+const SHOWN_ON_HOME = 4;
 
 export function TestimonialsSection() {
+  const [reviews, setReviews] = useState<PublishedFeedback[] | null>(null);
+
+  // The home page stays fast and static, and real reviews load in fresh on each visit.
+  useEffect(() => {
+    fetch('/api/feedback')
+      .then((res) => (res.ok ? res.json() : { feedback: [] }))
+      .then((data) => setReviews(data.feedback ?? []))
+      .catch(() => setReviews([]));
+  }, []);
+
   return (
     <section id="testimonials" className="bg-paper py-24 lg:py-36">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal>
           <p className="eyebrow mb-6 text-copper-dark">What Our Customers Say</p>
         </Reveal>
-        <RiseText
-          text="Trusted by individuals and businesses across Haryana."
-          className="max-w-4xl text-4xl font-light leading-[1.06] text-ink sm:text-6xl"
-        />
+        <RiseText text="Real reviews from real customers." className="max-w-4xl text-4xl font-light leading-[1.06] text-ink sm:text-6xl" />
 
-        <div className="mt-14 grid gap-5 md:grid-cols-2">
-          {TESTIMONIALS.map((t, i) => (
-            <Reveal key={t.name} delay={i * 0.12}>
-              <figure className="flex h-full flex-col justify-between rounded-3xl border border-ink/10 bg-white p-7 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_26px_50px_-28px_rgba(10,51,80,0.55)] lg:p-10">
-                <div>
-                  <div className="flex gap-1" role="img" aria-label="Rated 5 out of 5">
-                    {[0, 1, 2, 3, 4].map((n) => (
-                      <Star key={n} className="h-4 w-4 fill-copper text-copper" />
-                    ))}
-                  </div>
-                  <blockquote className="mt-6 font-display text-2xl font-light leading-snug text-ink lg:text-3xl">
-                    &ldquo;{t.message}&rdquo;
-                  </blockquote>
-                </div>
-                <figcaption className="mt-9 flex items-center gap-4">
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-ocean to-ocean-deep font-display text-lg text-white">
-                    {t.name[0]}
-                  </span>
-                  <span>
-                    <span className="block font-bold text-ink">{t.name}</span>
-                    <span className="block text-sm text-ink/60">{t.company ?? t.type}</span>
-                  </span>
-                </figcaption>
-              </figure>
-            </Reveal>
-          ))}
-        </div>
+        {reviews === null && (
+          <div aria-hidden className="mt-14 grid gap-5 md:grid-cols-2">
+            {[0, 1].map((n) => (
+              <div key={n} className="h-52 animate-pulse rounded-3xl bg-ink/5" />
+            ))}
+          </div>
+        )}
+
+        {reviews?.length === 0 && (
+          <Reveal className="mt-14">
+            <div className="rounded-3xl border border-dashed border-ink/20 px-7 py-14 text-center">
+              <h3 className="text-3xl font-light text-ink">Be the first to share</h3>
+              <p className="mx-auto mt-3 max-w-md leading-relaxed text-ink/65">
+                We only show feedback from real customers. Tried VAARI? Tell us how it went.
+              </p>
+            </div>
+          </Reveal>
+        )}
+
+        {reviews && reviews.length > 0 && (
+          <div className="mt-14 grid gap-5 md:grid-cols-2">
+            {reviews.slice(0, SHOWN_ON_HOME).map((review, i) => (
+              <Reveal key={review.id} delay={i * 0.1} y={26}>
+                <ReviewCard review={review} />
+              </Reveal>
+            ))}
+          </div>
+        )}
 
         <Reveal className="mt-8">
           <Link href="/feedback" className="btn-fill bg-ink text-white">
-            Share Your Feedback <ArrowRight className="h-4 w-4" />
+            {reviews && reviews.length > SHOWN_ON_HOME ? 'Read All Reviews' : 'Share Your Feedback'} <ArrowRight className="h-4 w-4" />
           </Link>
         </Reveal>
 

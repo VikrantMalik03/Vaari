@@ -118,20 +118,6 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
-export const TESTIMONIALS = [
-  {
-    name: 'Rahul Sharma',
-    company: 'Sharma Enterprises',
-    message: 'VAARI provides excellent water quality and always delivers on time. Highly recommended!',
-    type: 'Business Client',
-  },
-  {
-    name: 'Priya Mehta',
-    message: 'The water tastes fresh and pure. Delivery service is smooth and reliable.',
-    type: 'Individual Customer',
-  },
-];
-
 export const STATS = [
   { value: 1000, suffix: '+', label: 'Happy Customers' },
   { value: 50, suffix: '+', label: 'Business Partners' },
