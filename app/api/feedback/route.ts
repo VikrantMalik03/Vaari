@@ -39,14 +39,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: linkError ? FEEDBACK_LINK_ERROR : 'Invalid form data' }, { status: 400 });
     }
 
-    const feedback = await saveFeedback(parsed.data);
-    const notified = await notifyOwner(parsed.data, Boolean(feedback));
+    const { review, reason } = await saveFeedback(parsed.data);
+    const notified = await notifyOwner(parsed.data, Boolean(review));
 
     // The visitor only sees success if the feedback reached the database or the inbox.
-    if (!feedback && !notified) {
-      return NextResponse.json({ success: false, error: 'Could not save feedback' }, { status: 503 });
+    if (!review && !notified) {
+      return NextResponse.json({ success: false, error: 'Could not save feedback', reason }, { status: 503 });
     }
-    return NextResponse.json({ success: true, feedback });
+    return NextResponse.json({ success: true, feedback: review });
   } catch (err) {
     console.error('FEEDBACK ERROR:', err);
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 });

@@ -9,17 +9,39 @@ export type StorageStatus = 'connected' | 'not-configured' | 'error';
  * client library can crash on start-up depending on the server's Node version.
  */
 function getConnection() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, '');
+  // Tolerates the URL being pasted with a trailing slash or the REST path on the end.
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
+    .replace(/\/+$/, '')
+    .replace(/\/rest\/v1$/, '');
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
   if (!url || !key) return null;
-  return {
-    endpoint: `${url}/rest/v1/testimonials`,
-    headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-  };
+
+  // Publishable keys (sb_publishable_...) are not JWTs and only belong in the apikey header.
+  // Legacy anon keys are JWTs, and are sent in both.
+  const headers: Record<string, string> = { apikey: key, 'Content-Type': 'application/json' };
+  if (key.startsWith('eyJ')) headers.Authorization = `Bearer ${key}`;
+
+  return { endpoint: `${url}/rest/v1/testimonials`, headers };
+}
+
+/** A short reason such as "404 PGRST205". Contains status and error codes only, so it is safe to show. */
+async function failureReason(res: Response) {
+  const body = await res.text();
+  console.error('SUPABASE ERROR:', res.status, body);
+  try {
+    return `${res.status} ${JSON.parse(body).code ?? ''}`.trim();
+  } catch {
+    return String(res.status);
+  }
+}
+
+function networkReason(error: unknown) {
+  console.error('SUPABASE REQUEST FAILED:', error);
+  return error instanceof Error && error.name === 'TimeoutError' ? 'timeout' : 'network';
 }
 
 /** Highest ratings first, then newest, so positive feedback leads. Never throws. */
-export async function loadFeedback(limit = 60): Promise<{ feedback: PublishedFeedback[]; storage: StorageStatus }> {
+export async function loadFeedback(limit = 60): Promise<{ feedback: PublishedFeedback[]; storage: StorageStatus; reason?: string }> {
   const connection = getConnection();
   if (!connection) return { feedback: [], storage: 'not-configured' };
   try {
@@ -34,21 +56,17 @@ export async function loadFeedback(limit = 60): Promise<{ feedback: PublishedFee
       cache: 'no-store',
       signal: AbortSignal.timeout(8000),
     });
-    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+    if (!res.ok) return { feedback: [], storage: 'error', reason: await failureReason(res) };
     return { feedback: await res.json(), storage: 'connected' };
   } catch (error) {
-    console.error('FEEDBACK READ ERROR:', error);
-    return { feedback: [], storage: 'error' };
+    return { feedback: [], storage: 'error', reason: networkReason(error) };
   }
 }
 
-/** Publishes the feedback straight away. Returns the saved review, or null if it could not be saved. */
-export async function saveFeedback({ name, company, rating, message }: FeedbackInput): Promise<PublishedFeedback | null> {
+/** Publishes the feedback straight away. Never throws. */
+export async function saveFeedback({ name, company, rating, message }: FeedbackInput): Promise<{ review: PublishedFeedback | null; reason?: string }> {
   const connection = getConnection();
-  if (!connection) {
-    console.error('FEEDBACK SAVE ERROR: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY is not set');
-    return null;
-  }
+  if (!connection) return { review: null, reason: 'not-configured' };
   try {
     const res = await fetch(`${connection.endpoint}?select=${COLUMNS}`, {
       method: 'POST',
@@ -64,11 +82,10 @@ export async function saveFeedback({ name, company, rating, message }: FeedbackI
       cache: 'no-store',
       signal: AbortSignal.timeout(8000),
     });
-    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+    if (!res.ok) return { review: null, reason: await failureReason(res) };
     const rows: PublishedFeedback[] = await res.json();
-    return rows[0] ?? null;
+    return { review: rows[0] ?? null };
   } catch (error) {
-    console.error('FEEDBACK SAVE ERROR:', error);
-    return null;
+    return { review: null, reason: networkReason(error) };
   }
 }
