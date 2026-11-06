@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-
 import { ArrowRight, Award, Droplets, ShieldCheck, Sparkles } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { scrollToTarget, RiseText } from '@/components/site/motion';
-import { PRODUCTS, TWENTY_LITRE_IMAGE, type Product } from '@/lib/site-data';
+import { PRODUCTS } from '@/lib/site-data';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -13,52 +13,6 @@ const QUALITIES = [
   { icon: Award, label: 'FSSAI Certified' },
   { icon: Droplets, label: '100% Pure' },
 ];
-
-/** Illustration shown until the real 20 litre photo is added. */
-function TwentyLitreIllustration() {
-  return (
-    <svg viewBox="0 0 300 560" role="img" aria-label="VAARI 20 litre bottle" className="h-full w-auto">
-      <defs>
-        <linearGradient id="jar-body" x1="0" x2="1">
-          <stop offset="0" stopColor="#5fb6d4" stopOpacity="0.75" />
-          <stop offset="0.28" stopColor="#c9eef6" stopOpacity="0.55" />
-          <stop offset="0.6" stopColor="#7fcde3" stopOpacity="0.45" />
-          <stop offset="1" stopColor="#2b86ad" stopOpacity="0.8" />
-        </linearGradient>
-        <linearGradient id="jar-cap" x1="0" x2="1">
-          <stop offset="0" stopColor="#0e4f75" />
-          <stop offset="0.4" stopColor="#3ba3c9" />
-          <stop offset="1" stopColor="#0a3350" />
-        </linearGradient>
-      </defs>
-      <rect x="112" y="4" width="76" height="40" rx="9" fill="url(#jar-cap)" />
-      <rect x="120" y="42" width="60" height="26" fill="#a8dfec" fillOpacity="0.8" />
-      <path
-        d="M120 66 C120 92 44 96 30 138 C24 156 24 176 24 192 L24 500 C24 536 50 554 84 554 L216 554 C250 554 276 536 276 500 L276 192 C276 176 276 156 270 138 C256 96 180 92 180 66 Z"
-        fill="url(#jar-body)"
-        stroke="#d9f4fa"
-        strokeOpacity="0.65"
-        strokeWidth="2"
-      />
-      {[178, 462].map((y) => (
-        <path key={y} d={`M24 ${y} C90 ${y + 16} 210 ${y + 16} 276 ${y}`} fill="none" stroke="#fff" strokeOpacity="0.5" strokeWidth="5" />
-      ))}
-      <path d="M58 130 C46 170 46 440 58 510" fill="none" stroke="#fff" strokeOpacity="0.55" strokeWidth="9" strokeLinecap="round" />
-      <rect x="50" y="218" width="200" height="214" rx="6" fill="#fff" />
-      <image href="/brand/vaari-logo-stacked.webp" x="88" y="236" width="124" height="130" />
-      <text x="150" y="412" textAnchor="middle" fontFamily="Georgia, serif" fontSize="28" fill="#0a3350">
-        20 L
-      </text>
-    </svg>
-  );
-}
-
-function BottleImage({ product }: { product: Product }) {
-  if (product.image === TWENTY_LITRE_IMAGE && process.env.NEXT_PUBLIC_HAS_20L_PHOTO !== 'true') {
-    return <TwentyLitreIllustration />;
-  }
-  return <img src={product.image} alt={`VAARI ${product.name}`} loading="lazy" className="h-full w-auto" />;
-}
 
 export function ProductsSection() {
   const section = useRef<HTMLElement>(null);
@@ -153,7 +107,7 @@ export function ProductsSection() {
                   className="absolute inset-x-0 bottom-0 flex justify-center"
                 >
                   <div className="relative h-full animate-bob drop-shadow-[0_30px_22px_rgba(7,38,58,0.26)]" style={{ animationDelay: `${-i}s` }}>
-                    <BottleImage product={item} />
+                    <img src={item.image} alt={`VAARI ${item.name}`} loading="lazy" className="h-full w-auto max-w-none" />
                   </div>
                 </motion.div>
               );

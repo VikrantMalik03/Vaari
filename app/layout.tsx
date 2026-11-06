@@ -13,7 +13,7 @@ const display = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: 'VAARI - Premium Bottled Water | Stay Pure. Stay Hydrated.',
+  title: 'VAARI - Premium Bottled Water | Stay Pure, Stay Hydrated',
   description: 'VAARI by SATPREM SOLUTIONS delivers pure, RO purified water across Haryana. FSSAI certified, eco-friendly packaging, and white-label solutions for businesses.',
 };
 

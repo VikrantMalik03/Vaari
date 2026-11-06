@@ -1,6 +1,7 @@
 'use client';
 
-import { Star } from 'lucide-react';
+import { ArrowRight, Star } from 'lucide-react';
+import Link from 'next/link';
 import { Counter, Reveal, RiseText } from '@/components/site/motion';
 import { STATS, TESTIMONIALS } from '@/lib/site-data';
 
@@ -43,6 +44,12 @@ export function TestimonialsSection() {
             </Reveal>
           ))}
         </div>
+
+        <Reveal className="mt-8">
+          <Link href="/feedback" className="btn-fill bg-ink text-white">
+            Share Your Feedback <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Reveal>
 
         <div className="mt-20 grid grid-cols-2 gap-y-10 border-t border-ink/10 pt-12 lg:grid-cols-4">
           {STATS.map((stat) => (

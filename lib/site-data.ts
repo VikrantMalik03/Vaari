@@ -1,3 +1,5 @@
+export const SLOGAN = 'Stay Pure, Stay Hydrated';
+
 export const CONTACT = {
   phone: '9268448510',
   phoneHref: 'tel:+919268448510',
@@ -16,6 +18,7 @@ export const NAV_LINKS = [
   { name: 'Delivery', href: '#delivery' },
   { name: 'Testimonials', href: '#testimonials' },
   { name: 'Contact', href: '#contact' },
+  { name: 'Feedback', href: '/feedback' },
 ];
 
 export const CITIES = ['Faridabad', 'Gurgaon', 'Hodal', 'Palwal',];
@@ -40,9 +43,6 @@ export interface Product {
   /** Shown in place of a price while one is not set. */
   priceNote?: string;
 }
-
-/** Save the 20 litre photo at this path. It appears on the next build or dev server restart. */
-export const TWENTY_LITRE_IMAGE = '/bottles/vaari-20l.png';
 
 export const PRODUCTS: Product[] = [
   {
@@ -109,7 +109,7 @@ export const PRODUCTS: Product[] = [
     size: '20 L',
     numeral: '20L',
     description: 'Our largest size, made for homes, offices, and workplaces that go through a lot of water',
-    image: TWENTY_LITRE_IMAGE,
+    image: '/bottles/vaari-20l.webp',
     heightPct: 94,
     background: '#0a3350',
     foreground: '#ffffff',

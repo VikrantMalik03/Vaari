@@ -16,7 +16,7 @@ export function WhatsAppButton() {
 
   // Prompts wait until the visitor has moved past the hero and its buttons.
   useMotionValueEvent(scrollY, 'change', (y) => {
-    if (y > window.innerHeight * 2.6) setPastHero(true);
+    if (y > window.innerHeight * 1.2) setPastHero(true);
   });
 
   useEffect(() => {

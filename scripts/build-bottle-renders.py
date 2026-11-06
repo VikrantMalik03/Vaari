@@ -381,7 +381,6 @@ def process(cfg):
 
 if __name__ == "__main__":
     imgs = {c["out"]: process(c) for c in BOTTLES}
-    load_logo().save(PUBLIC / "brand" / "vaari-logo-stacked.webp", "WEBP", quality=92, alpha_quality=95, method=6)
 
     # Contact sheet on dark and light, for checking edges.
     import sys

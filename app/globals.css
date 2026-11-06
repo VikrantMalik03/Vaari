@@ -118,23 +118,41 @@
     animation: water-shift 9s linear infinite;
   }
 
-  /* Plays without JavaScript, so it can never leave the page covered. */
-  .preloader {
-    @apply fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-ink;
+  /*
+    Opening: a drop falls on the logo and the ripple opens up the page.
+    Pure CSS, so it plays without JavaScript and can never leave the page covered.
+  */
+  .intro {
+    @apply fixed inset-0 z-[100] grid place-items-center overflow-hidden bg-paper;
     pointer-events: none;
-    animation: preloader-out 0.7s cubic-bezier(0.76, 0, 0.24, 1) 0.95s forwards;
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--intro-radius), #000 calc(var(--intro-radius) + 1px));
+    mask-image: radial-gradient(circle at 50% 50%, transparent var(--intro-radius), #000 calc(var(--intro-radius) + 1px));
+    animation: intro-open 0.95s cubic-bezier(0.65, 0, 0.35, 1) 0.68s forwards;
   }
-  .preloader::before {
-    content: '';
-    @apply absolute inset-x-0 bottom-0 h-full;
-    background: linear-gradient(180deg, #1f7299, #0a3350);
-    transform-origin: bottom;
-    animation: preloader-rise 1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  .intro-logo {
+    @apply col-start-1 row-start-1 w-44;
+    animation: intro-logo 0.4s ease-out both;
   }
-  .preloader img {
-    @apply relative;
-    animation: preloader-logo 0.6s ease-out both;
+  .intro-drop {
+    @apply col-start-1 row-start-1 h-6 w-4;
+    background: linear-gradient(160deg, #7ad7e8, #1f7299);
+    clip-path: path('M8 0 C8 0 16 11 16 16 A8 8 0 0 1 0 16 C0 11 8 0 8 0 Z');
+    animation: intro-drop 0.66s cubic-bezier(0.55, 0, 0.9, 0.5) 0.04s both;
   }
+  .intro-ring {
+    @apply col-start-1 row-start-1 h-24 w-24 rounded-full border border-ocean;
+    opacity: 0;
+    animation: intro-ring 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.68s forwards;
+  }
+  .intro-ring-late {
+    animation-delay: 0.8s;
+  }
+}
+
+@property --intro-radius {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
 }
 
 html.lenis,
@@ -153,28 +171,40 @@ html.lenis body {
     background-position: -220% 0;
   }
 }
-@keyframes preloader-out {
+
+@keyframes intro-open {
   to {
-    transform: translateY(-100%);
+    --intro-radius: 120vmax;
     visibility: hidden;
   }
 }
-@keyframes preloader-rise {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
-  }
-}
-@keyframes preloader-logo {
+@keyframes intro-logo {
   from {
     opacity: 0;
-    transform: translateY(14px) scale(0.96);
+    transform: scale(0.96);
+  }
+}
+@keyframes intro-drop {
+  from {
+    transform: translateY(-55vh) scaleY(1.25);
+  }
+  99% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1.25);
   }
   to {
-    opacity: 1;
-    transform: none;
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+@keyframes intro-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 0;
+    transform: scale(7);
   }
 }
 

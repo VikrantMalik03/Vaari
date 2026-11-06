@@ -2,6 +2,8 @@
 
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-motion';
 import { Mail, Menu, MessageCircle, Palette, Phone, X } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
   Dialog,
@@ -21,6 +23,10 @@ export function Navigation() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeId, setActiveId] = useState('');
   const { scrollY } = useScroll();
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+  // Section links need the home page in front of them when used from another page.
+  const hrefFor = (href: string) => (href.startsWith('#') && !isHome ? `/${href}` : href);
 
   useMotionValueEvent(scrollY, 'change', (y) => setScrolled(y > 40));
 
@@ -38,7 +44,7 @@ export function Navigation() {
       },
       { rootMargin: '-50% 0px -50% 0px' },
     );
-    ['home', ...NAV_LINKS.map((l) => l.href.slice(1))].forEach((id) => {
+    ['home', ...NAV_LINKS.filter((l) => l.href.startsWith('#')).map((l) => l.href.slice(1))].forEach((id) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
@@ -52,18 +58,18 @@ export function Navigation() {
       <motion.header
         initial={{ y: -90, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1, ease: EASE, delay: 1.2 }}
+        transition={{ duration: 1, ease: EASE, delay: isHome ? 1.1 : 0.1 }}
         className="fixed inset-x-0 top-0 z-50 px-3 sm:px-5"
       >
         <nav
           aria-label="Main"
-          className={`mx-auto flex items-center justify-between transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`mx-auto flex items-center justify-between transition-all duration-700 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
             solid
               ? 'mt-3 h-16 max-w-6xl rounded-full border border-white/60 bg-white/75 px-4 shadow-[0_14px_44px_-14px_rgba(7,38,58,0.4)] backdrop-blur-xl sm:px-6'
               : 'mt-1 h-20 max-w-7xl rounded-none border border-transparent bg-transparent px-2 sm:px-3'
           }`}
         >
-          <a href="#home" aria-label="VAARI home" className="relative block h-10 w-[86px] shrink-0">
+          <Link href={isHome ? '#home' : '/'} aria-label="VAARI home" className="relative block h-10 w-[86px] shrink-0">
             <img
               src="/brand/vaari-logo-light.webp"
               alt=""
@@ -74,17 +80,17 @@ export function Navigation() {
               alt=""
               className={`absolute inset-0 h-full w-full object-contain object-left transition-opacity duration-500 ${solid ? 'opacity-100' : 'opacity-0'}`}
             />
-          </a>
+          </Link>
 
-          <div className="hidden items-center gap-1 lg:flex">
+          <div className="hidden items-center lg:flex xl:gap-1">
             {NAV_LINKS.map((link) => {
-              const isActive = activeId === link.href.slice(1);
+              const isActive = link.href === pathname || (isHome && activeId === link.href.slice(1));
               return (
-                <a
+                <Link
                   key={link.name}
-                  href={link.href}
+                  href={hrefFor(link.href)}
                   aria-current={isActive ? 'true' : undefined}
-                  className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
+                  className={`relative rounded-full px-3 py-2 text-sm font-semibold xl:px-4 transition-colors duration-300 ${
                     solid ? 'text-ink/75 hover:text-ink' : 'text-white/85 hover:text-white'
                   }`}
                 >
@@ -96,7 +102,7 @@ export function Navigation() {
                     />
                   )}
                   {link.name}
-                </a>
+                </Link>
               );
             })}
           </div>
@@ -137,12 +143,12 @@ export function Navigation() {
             {NAV_LINKS.map((link, i) => (
               <motion.a
                 key={link.name}
-                href={link.href}
+                href={hrefFor(link.href)}
                 onClick={() => setMenuOpen(false)}
                 initial={{ opacity: 0, y: 28 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: EASE, delay: 0.2 + i * 0.06 }}
-                className="border-b border-white/10 py-3.5 font-display text-4xl font-light"
+                className="border-b border-white/10 py-3 font-display text-3xl font-light sm:text-4xl"
               >
                 {link.name}
               </motion.a>
@@ -183,7 +189,8 @@ export function Navigation() {
             <button
               onClick={() => {
                 setDialogOpen(false);
-                scrollToTarget('#white-label');
+                if (isHome) scrollToTarget('#white-label');
+                else window.location.href = '/#white-label';
               }}
               className="group flex items-center gap-4 rounded-2xl bg-foam p-4 text-left transition-colors hover:bg-copper hover:text-white"
             >

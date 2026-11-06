@@ -276,7 +276,7 @@ export function Bubbles({ count = 34, className }: { count?: number; className?:
   return <canvas ref={ref} aria-hidden className={className} />;
 }
 
-const WAVE_PATH =
+export const WAVE_PATH =
   'M0,40 C150,80 350,0 600,40 C850,80 1050,0 1200,40 C1350,80 1550,0 1800,40 C2050,80 2250,0 2400,40 L2400,120 L0,120 Z';
 
 /** Two layers of moving water, used as the edge between sections. */

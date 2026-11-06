@@ -13,8 +13,9 @@ import { MotionProvider } from '@/components/site/motion';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { WhatsAppButton } from '@/components/whatsapp-button';
 import { WhiteLabelSection } from '@/components/white-label-section';
+import { SLOGAN } from '@/lib/site-data';
 
-const TICKER = ['Stay Pure', 'Stay Hydrated', 'RO Purified', 'FSSAI Certified', 'Delivered Across Haryana', 'White-Label Solutions'];
+const TICKER = [SLOGAN, 'RO Purified', 'FSSAI Certified', 'Delivered Across Haryana', 'White-Label Solutions'];
 
 function Ticker() {
   return (
@@ -38,8 +39,11 @@ function Ticker() {
 export default function Home() {
   return (
     <MotionProvider>
-      <div aria-hidden className="preloader">
-        <img src="/brand/vaari-logo-light.webp" alt="" className="w-44" />
+      <div aria-hidden className="intro">
+        <img src="/brand/vaari-logo.webp" alt="" className="intro-logo" />
+        <span className="intro-ring" />
+        <span className="intro-ring intro-ring-late" />
+        <span className="intro-drop" />
       </div>
       <Navigation />
       <main>

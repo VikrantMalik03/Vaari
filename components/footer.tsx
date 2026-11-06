@@ -2,6 +2,7 @@
 
 import { Instagram, Linkedin, Mail, MapPin, Phone, Twitter } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { WaveEdge } from '@/components/site/motion';
 import { CONTACT, NAV_LINKS } from '@/lib/site-data';
 
@@ -19,6 +20,7 @@ const LEGAL = [
 
 export function Footer() {
   const year = new Date().getFullYear();
+  const isHome = usePathname() === '/';
 
   return (
     <footer className="relative bg-ink pt-16 text-white">
@@ -49,7 +51,7 @@ export function Footer() {
           <FooterColumn title="Quick Links">
             {NAV_LINKS.map((link) => (
               <li key={link.name}>
-                <a href={link.href} className="text-white/65 transition-colors hover:text-aqua">{link.name}</a>
+                <Link href={link.href.startsWith('#') && !isHome ? `/${link.href}` : link.href} className="text-white/65 transition-colors hover:text-aqua">{link.name}</Link>
               </li>
             ))}
           </FooterColumn>
