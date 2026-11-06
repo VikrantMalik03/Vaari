@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { FeedbackView } from '@/components/feedback-view';
-import { getPublishedFeedback } from '@/lib/feedback-store';
+import { loadFeedback } from '@/lib/feedback-store';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default async function FeedbackPage() {
-  const feedback = await getPublishedFeedback();
+  const { feedback } = await loadFeedback();
   return <FeedbackView feedback={feedback} />;
 }

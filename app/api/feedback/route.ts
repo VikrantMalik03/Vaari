@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { buildFeedbackEmail, FEEDBACK_LINK_ERROR, feedbackSchema, type FeedbackInput } from '@/lib/feedback';
-import { getPublishedFeedback, saveFeedback } from '@/lib/feedback-store';
+import { loadFeedback, saveFeedback } from '@/lib/feedback-store';
 
 async function notifyOwner(input: FeedbackInput, saved: boolean) {
   if (!process.env.RESEND_API_KEY) return false;
@@ -23,7 +23,7 @@ async function notifyOwner(input: FeedbackInput, saved: boolean) {
 }
 
 export async function GET() {
-  return NextResponse.json({ feedback: await getPublishedFeedback() });
+  return NextResponse.json(await loadFeedback());
 }
 
 export async function POST(req: Request) {
